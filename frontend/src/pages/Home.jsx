@@ -125,8 +125,8 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
             {[
               {
-                title: "Device Lifecycle & PC Refresh",
-                desc: "End-to-end hardware rollout, configuration, and asset management for large enterprises.",
+                title: "Hardware Refresh & Device Lifecycle",
+                desc: "Complete hardware replacement projects: PCs, laptops, tablets, phones, iPads, and all enterprise devices. End-to-end rollout, configuration, and asset management for large-scale refresh initiatives.",
                 icon: "💻"
               },
               {
@@ -244,9 +244,9 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">PC Refresh Projects</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Hardware Refresh Projects</h3>
               <p className="text-gray-600">
-                Streamlined management for IT infrastructure refresh projects including hardware replacement, OS upgrades, and migration planning.
+                Manage complete hardware refresh cycles: PCs, laptops, tablets, phones, iPads, and all enterprise devices. Track rollout, configuration, asset management, and migration planning.
               </p>
             </div>
           </div>
@@ -463,7 +463,7 @@ export default function Home() {
                     <svg className="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
-                    PC Refresh Initiatives
+                    Hardware Refresh Projects
                   </li>
                   <li className="flex items-center text-gray-700">
                     <svg className="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
@@ -518,10 +518,10 @@ export default function Home() {
             <div>
               <h3 className="text-white font-bold text-xl mb-4">PaxiPM AI</h3>
               <p className="text-sm leading-relaxed">
-                AI-powered project management specifically designed for IT infrastructure and software delivery projects. Perfect for PC refresh initiatives, network transformations, and enterprise deployments.
+                AI-powered project management specifically designed for IT infrastructure and software delivery projects. Perfect for hardware refresh cycles (PCs, tablets, phones, iPads), network transformations, and enterprise deployments.
               </p>
               <p className="text-xs text-gray-400 mt-2">
-                From hardware refresh to cloud migration, manage it all with AI.
+                From hardware refresh cycles (all devices) to cloud migration, manage it all with AI.
               </p>
             </div>
             <div>
