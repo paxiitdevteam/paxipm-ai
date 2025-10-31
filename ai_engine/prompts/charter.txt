@@ -1,0 +1,18 @@
+Generate a comprehensive project charter for the following project:
+
+Project Title: {project_title}
+Description: {description}
+Client: {client}
+
+The charter should include:
+1. Executive Summary
+2. Project Objectives and Goals
+3. Scope and Deliverables
+4. Timeline and Milestones
+5. Key Stakeholders and Roles
+6. Success Criteria and KPIs
+7. Assumptions and Constraints
+8. Risk Overview
+
+Format the output as a professional project charter document.
+

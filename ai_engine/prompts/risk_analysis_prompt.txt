@@ -1,0 +1,138 @@
+You are an expert PMP, ITIL, and Agile project manager.
+
+Given the following project input:
+
+Project Description: {project_description}
+Duration: {duration}
+Team Size: {team_size}
+
+Generate comprehensive project management documentation including:
+
+1. **Project Charter**
+   - Executive Summary
+   - Project Objectives
+   - Success Criteria
+   - Key Stakeholders
+   - Budget Overview
+   - Timeline Overview
+
+2. **Work Breakdown Structure (WBS)**
+   - Major Phases (at least 3-4 phases)
+   - Deliverables per phase
+   - Detailed Tasks with:
+     - Task name and description
+     - Assigned team member role
+     - Estimated hours/days
+     - Dependencies (if any)
+     - Priority level (High/Medium/Low)
+
+3. **Key Risks**
+   - Risk Identification (at least 5-7 risks)
+   - Risk Assessment:
+     - Probability (Low/Medium/High)
+     - Impact (Low/Medium/High)
+     - Risk Score (calculated)
+   - Mitigation Strategies
+   - Contingency Plans
+   - Risk Owner assignment
+
+Return results in structured JSON format with the following schema:
+
+{{
+  "project_charter": {{
+    "executive_summary": "string",
+    "objectives": [
+      "string"
+    ],
+    "success_criteria": [
+      "string"
+    ],
+    "key_stakeholders": [
+      {{
+        "name": "string",
+        "role": "string",
+        "responsibility": "string"
+      }}
+    ],
+    "budget_overview": {{
+      "total_budget": "string",
+      "cost_breakdown": [
+        {{
+          "category": "string",
+          "amount": "string",
+          "description": "string"
+        }}
+      ]
+    }},
+    "timeline_overview": {{
+      "start_date": "YYYY-MM-DD",
+      "end_date": "YYYY-MM-DD",
+      "duration_days": number,
+      "key_milestones": [
+        {{
+          "milestone_name": "string",
+          "date": "YYYY-MM-DD"
+        }}
+      ]
+    }}
+  }},
+  "work_breakdown_structure": {{
+    "phases": [
+      {{
+        "phase_name": "string",
+        "phase_number": number,
+        "description": "string",
+        "start_date": "YYYY-MM-DD",
+        "end_date": "YYYY-MM-DD",
+        "deliverables": [
+          {{
+            "deliverable_name": "string",
+            "description": "string",
+            "due_date": "YYYY-MM-DD"
+          }}
+        ],
+        "tasks": [
+          {{
+            "task_name": "string",
+            "task_id": "string",
+            "description": "string",
+            "assigned_role": "string",
+            "estimated_hours": number,
+            "estimated_days": number,
+            "start_date": "YYYY-MM-DD",
+            "due_date": "YYYY-MM-DD",
+            "dependencies": ["string"],
+            "priority": "High|Medium|Low",
+            "status": "Not Started"
+          }}
+        ]
+      }}
+    ]
+  }},
+  "key_risks": [
+    {{
+      "risk_id": "string",
+      "risk_name": "string",
+      "risk_description": "string",
+      "category": "Technical|Schedule|Resource|Budget|Scope|Quality",
+      "probability": "Low|Medium|High",
+      "impact": "Low|Medium|High",
+      "risk_score": number,
+      "risk_level": "Low|Medium|High|Critical",
+      "mitigation_strategy": "string",
+      "contingency_plan": "string",
+      "risk_owner": "string",
+      "status": "Identified"
+    }}
+  ]
+}}
+
+Important:
+- All dates should be calculated based on the provided duration
+- Team size should inform resource allocation in tasks
+- Risk scores should be calculated as: Probability (1-3) × Impact (1-3) = Score (1-9)
+  - Risk Level: Low (1-3), Medium (4-6), High (7-8), Critical (9)
+- Return ONLY valid JSON, no additional text or markdown formatting
+- Ensure all required fields are present
+- Use realistic project management terminology and best practices
+

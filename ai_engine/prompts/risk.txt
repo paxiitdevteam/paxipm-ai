@@ -1,0 +1,23 @@
+Analyze the risk level for this project based on the following metrics:
+
+Project Title: {project_title}
+Description: {description}
+Total Tasks: {tasks_count}
+Overdue Tasks: {overdue_tasks}
+Average Progress: {avg_progress}%
+
+Consider factors such as:
+- Task completion rate
+- Deadline adherence
+- Project complexity
+- Resource allocation
+- Historical patterns
+
+Provide a risk score from 0-100 where:
+- 0-30: Low Risk (Green)
+- 31-60: Medium Risk (Yellow)
+- 61-80: High Risk (Orange)
+- 81-100: Critical Risk (Red)
+
+Respond with only a single integer number between 0 and 100 representing the risk score.
+

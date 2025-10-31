@@ -1,0 +1,125 @@
+You are an expert project manager analyzing project progress data.
+
+Analyze the following project progress data:
+
+<Progress Data>
+{progress_data}
+</Progress Data>
+
+Based on this data, perform a comprehensive risk analysis:
+
+1. **Identify Risks**
+   - Schedule risks (delays, timeline issues)
+   - Resource risks (team availability, skill gaps)
+   - Technical risks (complexity, dependencies)
+   - Budget risks (cost overruns, scope creep)
+   - Quality risks (defect rates, testing gaps)
+   - Stakeholder risks (communication, expectations)
+
+2. **Rate Overall Risk Score (0-100)**
+   - 0-20: Very Low Risk (Green) - Project on track, minimal issues
+   - 21-40: Low Risk (Light Green) - Minor concerns, manageable
+   - 41-60: Medium Risk (Yellow) - Some challenges, needs attention
+   - 61-80: High Risk (Orange) - Significant issues, intervention needed
+   - 81-100: Critical Risk (Red) - Project in danger, urgent action required
+
+   Consider factors:
+   - Task completion rates
+   - Deadline adherence
+   - Resource utilization
+   - Budget variance
+   - Quality metrics
+   - Team velocity
+   - Blockers and dependencies
+
+3. **Provide Risk Summary**
+   - Key risk areas identified
+   - Impact assessment
+   - Current project health status
+   - Trend analysis (improving/declining/stable)
+
+4. **Generate Recommendations**
+   - Immediate actions (next 24-48 hours)
+   - Short-term actions (this week)
+   - Medium-term actions (this month)
+   - Strategic recommendations
+   - Resource reallocation suggestions
+   - Process improvements
+
+Return results in structured JSON format:
+
+{{
+  "risk_score": number,
+  "risk_level": "Very Low|Low|Medium|High|Critical",
+  "risk_summary": {{
+    "overall_status": "string",
+    "key_risk_areas": [
+      {{
+        "category": "Schedule|Resource|Technical|Budget|Quality|Stakeholder",
+        "description": "string",
+        "severity": "Low|Medium|High|Critical",
+        "impact": "string"
+      }}
+    ],
+    "project_health": "string",
+    "trend": "Improving|Declining|Stable"
+  }},
+  "recommendations": {{
+    "immediate_actions": [
+      {{
+        "action": "string",
+        "priority": "Critical|High|Medium",
+        "owner": "string",
+        "deadline": "YYYY-MM-DD"
+      }}
+    ],
+    "short_term_actions": [
+      {{
+        "action": "string",
+        "priority": "High|Medium|Low",
+        "owner": "string",
+        "deadline": "YYYY-MM-DD"
+      }}
+    ],
+    "medium_term_actions": [
+      {{
+        "action": "string",
+        "priority": "High|Medium|Low",
+        "owner": "string",
+        "deadline": "YYYY-MM-DD"
+      }}
+    ],
+    "strategic_recommendations": [
+      "string"
+    ],
+    "resource_suggestions": [
+      {{
+        "recommendation": "string",
+        "category": "Resource Allocation|Team Structure|Skills|Tools"
+      }}
+    ],
+    "process_improvements": [
+      "string"
+    ]
+  }},
+  "metrics": {{
+    "schedule_health": "On Track|At Risk|Delayed",
+    "budget_health": "On Budget|Over Budget|Under Budget",
+    "quality_health": "Good|Acceptable|Concern",
+    "resource_health": "Optimal|Strained|Critical",
+    "overall_health": "Healthy|Moderate|Concerning|Critical"
+  }},
+  "insights": [
+    "string"
+  ]
+}}
+
+Important:
+- Risk score must be between 0-100
+- Provide actionable, specific recommendations
+- Base analysis on actual progress data provided
+- Use project management best practices (PMP, Agile, ITIL)
+- Return ONLY valid JSON, no additional text
+- Ensure all required fields are present
+- Be realistic and data-driven in assessment
+

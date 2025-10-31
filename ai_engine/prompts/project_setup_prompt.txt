@@ -1,0 +1,87 @@
+Generate a comprehensive project setup document for the following project:
+
+Project: {project}
+Progress: {progress}%
+
+The project setup should include:
+
+1. **Project Overview**
+   - Clear project description
+   - Primary objectives
+   - Expected outcomes
+
+2. **Work Breakdown Structure (WBS)**
+   - Major phases
+   - Key deliverables
+   - Task breakdown (at least 5-7 tasks)
+
+3. **Timeline**
+   - Start date
+   - Key milestones
+   - Estimated completion date
+
+4. **Resource Allocation**
+   - Required team members
+   - Skill requirements
+   - Estimated effort
+
+5. **Risk Assessment**
+   - Identified risks
+   - Mitigation strategies
+   - Contingency plans
+
+Format the response as structured JSON with the following schema:
+{{
+  "project_overview": {{
+    "description": "string",
+    "objectives": ["string"],
+    "outcomes": ["string"]
+  }},
+  "wbs": {{
+    "phases": [
+      {{
+        "phase_name": "string",
+        "deliverables": ["string"],
+        "tasks": [
+          {{
+            "task_name": "string",
+            "description": "string",
+            "owner": "string",
+            "estimated_hours": number,
+            "due_date": "YYYY-MM-DD"
+          }}
+        ]
+      }}
+    ]
+  }},
+  "timeline": {{
+    "start_date": "YYYY-MM-DD",
+    "milestones": [
+      {{
+        "milestone_name": "string",
+        "due_date": "YYYY-MM-DD"
+      }}
+    ],
+    "estimated_completion": "YYYY-MM-DD"
+  }},
+  "resources": {{
+    "team_members": [
+      {{
+        "role": "string",
+        "skills": ["string"],
+        "allocation_percent": number
+      }}
+    ]
+  }},
+  "risks": [
+    {{
+      "risk_name": "string",
+      "probability": "Low|Medium|High",
+      "impact": "Low|Medium|High",
+      "mitigation": "string"
+    }}
+  ]
+}}
+
+Return ONLY valid JSON, no additional text.
+

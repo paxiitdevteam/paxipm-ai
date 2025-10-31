@@ -1,0 +1,214 @@
+You are a professional PMO (Project Management Office) analyst generating a comprehensive project status report.
+
+Analyze the provided project information and generate a professional PMO status report.
+
+Project Information:
+{project_data}
+
+Generate a comprehensive status report that includes:
+
+1. **Executive Summary**
+   - Current project status (On Track / At Risk / Delayed / On Hold)
+   - Overall health indicator
+   - Key highlight
+
+2. **Achievements & Milestones**
+   - Completed milestones
+   - Key deliverables achieved
+   - Positive progress indicators
+   - Team accomplishments
+   - Quality achievements
+
+3. **Blockers & Challenges**
+   - Active blockers preventing progress
+   - Resource constraints
+   - Technical challenges
+   - Dependencies not met
+   - Risk items that have materialized
+   - Timeline impacts
+
+4. **Next Actions**
+   - Immediate actions (next 48 hours)
+   - Short-term actions (this week)
+   - Key decisions required
+   - Resource needs
+   - Escalation items
+
+5. **Metrics & KPIs**
+   - Schedule performance (SPI)
+   - Budget performance (CPI)
+   - Scope completion
+   - Quality metrics
+   - Resource utilization
+
+6. **Risk Update**
+   - New risks identified
+   - Risk status changes
+   - Mitigation status
+
+Return the results in TWO formats:
+
+**Format 1: Plain Text Report**
+A professional, well-formatted text report suitable for executive presentation, with clear sections, bullet points, and structured layout.
+
+**Format 2: JSON Summary**
+Structured data for programmatic use and dashboard integration.
+
+The JSON structure should be:
+
+{{
+  "executive_summary": {{
+    "status": "On Track|At Risk|Delayed|On Hold",
+    "overall_health": "Green|Yellow|Orange|Red",
+    "key_highlight": "string",
+    "summary_text": "string"
+  }},
+  "achievements": {{
+    "milestones_completed": [
+      {{
+        "milestone_name": "string",
+        "completion_date": "YYYY-MM-DD",
+        "description": "string"
+      }}
+    ],
+    "deliverables_achieved": [
+      {{
+        "deliverable_name": "string",
+        "status": "string",
+        "completion_date": "YYYY-MM-DD"
+      }}
+    ],
+    "positive_indicators": [
+      "string"
+    ],
+    "team_accomplishments": [
+      "string"
+    ]
+  }},
+  "blockers": [
+    {{
+      "blocker_id": "string",
+      "blocker_name": "string",
+      "description": "string",
+      "category": "Technical|Resource|Dependency|External|Process",
+      "severity": "Critical|High|Medium|Low",
+      "impact": "string",
+      "owner": "string",
+      "reported_date": "YYYY-MM-DD",
+      "status": "Active|Resolved|Escalated"
+    }}
+  ],
+  "next_actions": {{
+    "immediate_actions": [
+      {{
+        "action_id": "string",
+        "action": "string",
+        "priority": "Critical|High|Medium|Low",
+        "owner": "string",
+        "due_date": "YYYY-MM-DD",
+        "dependencies": ["string"]
+      }}
+    ],
+    "short_term_actions": [
+      {{
+        "action_id": "string",
+        "action": "string",
+        "priority": "High|Medium|Low",
+        "owner": "string",
+        "due_date": "YYYY-MM-DD"
+      }}
+    ],
+    "decisions_required": [
+      {{
+        "decision": "string",
+        "decision_maker": "string",
+        "deadline": "YYYY-MM-DD",
+        "context": "string"
+      }}
+    ],
+    "resource_needs": [
+      {{
+        "resource_type": "string",
+        "description": "string",
+        "urgency": "Critical|High|Medium",
+        "requested_date": "YYYY-MM-DD"
+      }}
+    ],
+    "escalation_items": [
+      {{
+        "item": "string",
+        "escalation_level": "Project Sponsor|Executive|Steering Committee",
+        "reason": "string",
+        "recommended_action": "string"
+      }}
+    ]
+  }},
+  "metrics": {{
+    "schedule_performance_index": number,
+    "cost_performance_index": number,
+    "scope_completion_percent": number,
+    "quality_metrics": {{
+      "defect_rate": "string",
+      "test_coverage": "string",
+      "customer_satisfaction": "string"
+    }},
+    "resource_utilization": {{
+      "team_utilization_percent": number,
+      "critical_resource_availability": "string"
+    }},
+    "project_health_score": number
+  }},
+  "risk_update": {{
+    "new_risks": [
+      {{
+        "risk_name": "string",
+        "probability": "Low|Medium|High",
+        "impact": "Low|Medium|High",
+        "description": "string"
+      }}
+    ],
+    "risk_status_changes": [
+      {{
+        "risk_name": "string",
+        "previous_status": "string",
+        "current_status": "string",
+        "reason": "string"
+      }}
+    ],
+    "mitigation_status": [
+      {{
+        "risk_name": "string",
+        "mitigation_action": "string",
+        "status": "In Progress|Completed|Not Started",
+        "progress_percent": number
+      }}
+    ]
+  }},
+  "report_metadata": {{
+    "report_date": "YYYY-MM-DD",
+    "report_period": "string",
+    "prepared_by": "AI PMO Analyst",
+    "project_name": "string"
+  }}
+}}
+
+Important Guidelines:
+- Write in professional PMO language suitable for executive stakeholders
+- Be specific and data-driven
+- Highlight critical items clearly
+- Provide actionable recommendations
+- Use standard project management terminology (PMP, ITIL, Agile)
+- Balance between being comprehensive and concise
+- Ensure both plain text and JSON are accurate and synchronized
+- Plain text should be formatted with clear headings, sections, and professional structure
+
+Return the response in this exact format:
+
+---PLAIN TEXT REPORT---
+[Insert professional plain text report here]
+---END PLAIN TEXT REPORT---
+
+---JSON SUMMARY---
+[Insert valid JSON here]
+---END JSON SUMMARY---
+
