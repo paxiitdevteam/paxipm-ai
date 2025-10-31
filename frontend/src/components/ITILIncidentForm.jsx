@@ -253,7 +253,7 @@ const ITILIncidentForm = ({ projectId, incident = null, onClose, onSuccess }) =>
           </div>
         </div>
 
-        {formData.status === 'Resolved' || formData.status === 'Closed' && (
+        {(formData.status === 'Resolved' || formData.status === 'Closed') && (
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Resolution

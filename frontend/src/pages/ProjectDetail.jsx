@@ -670,6 +670,134 @@ export default function ProjectDetail() {
           </div>
         )}
 
+        {activeTab === "itam" && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold text-gray-900">IT Asset Management (ITAM)</h2>
+                <button
+                  onClick={() => {
+                    setEditingAsset(null);
+                    setShowAssetForm(true);
+                  }}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  + Add Asset
+                </button>
+              </div>
+
+              {showAssetForm && (
+                <div className="mb-6">
+                  <AssetForm
+                    projectId={id}
+                    asset={editingAsset}
+                    onClose={handleAssetFormClose}
+                    onSuccess={handleAssetSuccess}
+                  />
+                </div>
+              )}
+
+              <AssetList projectId={id} onAssetSelect={handleAssetEdit} />
+            </div>
+          </div>
+        )}
+
+        {activeTab === "sla" && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold text-gray-900">Service Level Agreements (SLA)</h2>
+                <button
+                  onClick={() => {
+                    setEditingSLA(null);
+                    setShowSLAForm(true);
+                  }}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  + Create SLA
+                </button>
+              </div>
+
+              {showSLAForm && (
+                <div className="mb-6">
+                  <SLAForm
+                    projectId={id}
+                    sla={editingSLA}
+                    onClose={handleSLAFormClose}
+                    onSuccess={handleSLASuccess}
+                  />
+                </div>
+              )}
+
+              <SLAList projectId={id} onSLASelect={handleSLAEdit} />
+            </div>
+          </div>
+        )}
+
+        {activeTab === "itil-incidents" && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold text-gray-900">ITIL Incident Management</h2>
+                <button
+                  onClick={() => {
+                    setEditingITILIncident(null);
+                    setShowITILIncidentForm(true);
+                  }}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  + Create Incident
+                </button>
+              </div>
+
+              {showITILIncidentForm && (
+                <div className="mb-6">
+                  <ITILIncidentForm
+                    projectId={id}
+                    incident={editingITILIncident}
+                    onClose={handleITILIncidentFormClose}
+                    onSuccess={handleITILIncidentSuccess}
+                  />
+                </div>
+              )}
+
+              <ITILIncidentList projectId={id} onIncidentSelect={handleITILIncidentEdit} />
+            </div>
+          </div>
+        )}
+
+        {activeTab === "changes" && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold text-gray-900">Change Management</h2>
+                <button
+                  onClick={() => {
+                    setEditingChange(null);
+                    setShowChangeForm(true);
+                  }}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  + Create Change
+                </button>
+              </div>
+
+              {showChangeForm && (
+                <div className="mb-6">
+                  <ChangeForm
+                    projectId={id}
+                    change={editingChange}
+                    onClose={handleChangeFormClose}
+                    onSuccess={handleChangeSuccess}
+                  />
+                </div>
+              )}
+
+              <ChangeList projectId={id} onChangeSelect={handleChangeEdit} />
+            </div>
+          </div>
+        )}
+
         {activeTab === "budget" && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <BudgetCard
