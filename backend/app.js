@@ -16,6 +16,10 @@ import issueRoutes from "./api/routes/issues.js";
 import fileRoutes from "./api/routes/files.js";
 import notificationRoutes from "./api/routes/notifications.js";
 import resourceRoutes from "./api/routes/resources.js";
+import itamRoutes from "./api/routes/itam.js";
+import slaRoutes from "./api/routes/sla.js";
+import itilIncidentRoutes from "./api/routes/itil_incidents.js";
+import changeRoutes from "./api/routes/changes.js";
 import aiRoutes from "./api/routes/ai.js";
 
 // Import Swagger
@@ -129,6 +133,10 @@ app.use("/api/issues", issueRoutes);
 app.use("/api/files", fileRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/resources", resourceRoutes);
+app.use("/api/itam", itamRoutes);
+app.use("/api/sla", slaRoutes);
+app.use("/api/itil-incidents", itilIncidentRoutes);
+app.use("/api/changes", changeRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/ai", aiRoutes);
 
