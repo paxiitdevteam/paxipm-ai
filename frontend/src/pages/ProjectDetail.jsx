@@ -13,6 +13,7 @@ import RiskRegister from "../components/RiskRegister";
 import RiskForm from "../components/RiskForm";
 import IssueRegister from "../components/IssueRegister";
 import IssueForm from "../components/IssueForm";
+import FileUpload from "../components/FileUpload";
 import { useMilestones } from "../context/MilestoneContext";
 import config from "../config";
 
@@ -246,6 +247,16 @@ export default function ProjectDetail() {
                 Issues
               </button>
               <button
+                onClick={() => setActiveTab("files")}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === "files"
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
+              >
+                Files
+              </button>
+              <button
                 onClick={() => setActiveTab("budget")}
                 className={`py-4 px-1 border-b-2 font-medium text-sm ${
                   activeTab === "budget"
@@ -470,6 +481,14 @@ export default function ProjectDetail() {
               )}
 
               <IssueRegister projectId={id} onIssueSelect={handleIssueEdit} />
+            </div>
+          </div>
+        )}
+
+        {activeTab === "files" && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <FileUpload projectId={id} />
             </div>
           </div>
         )}

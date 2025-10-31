@@ -23,6 +23,17 @@ export default function Dashboard() {
     fetchDashboardData(token);
   }, [navigate]);
 
+  const [stats, setStats] = useState({
+    totalTasks: 0,
+    overdueTasks: 0,
+    totalMilestones: 0,
+    overdueMilestones: 0,
+    openRisks: 0,
+    openIssues: 0,
+    totalBudget: 0,
+    spentBudget: 0
+  });
+
   const fetchDashboardData = async (token) => {
     try {
       setLoading(true);
@@ -34,8 +45,9 @@ export default function Dashboard() {
         },
       });
 
+      let projectsData = [];
       if (projectsRes.ok) {
-        const projectsData = await projectsRes.json();
+        projectsData = await projectsRes.json();
         setProjects(projectsData);
       }
 
@@ -50,6 +62,91 @@ export default function Dashboard() {
         const reportsData = await reportsRes.json();
         setReports(reportsData);
       }
+
+      // Fetch tasks, milestones, risks, issues for all projects
+      let totalTasks = 0;
+      let overdueTasks = 0;
+      let totalMilestones = 0;
+      let overdueMilestones = 0;
+      let openRisks = 0;
+      let openIssues = 0;
+      let totalBudget = 0;
+      let spentBudget = 0;
+
+      for (const project of projectsData) {
+        // Calculate budget
+        totalBudget += project.budgetedAmount || 0;
+        spentBudget += project.spentAmount || 0;
+
+        // Fetch tasks
+        try {
+          const tasksRes = await fetch(`${config.API_BASE_URL}/api/tasks/project/${project.id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (tasksRes.ok) {
+            const tasks = await tasksRes.json();
+            totalTasks += tasks.length;
+            overdueTasks += tasks.filter(t => 
+              t.dueDate && new Date(t.dueDate) < new Date() && t.progress < 100
+            ).length;
+          }
+        } catch (err) {
+          console.error(`Error fetching tasks for project ${project.id}:`, err);
+        }
+
+        // Fetch milestones
+        try {
+          const milestonesRes = await fetch(`${config.API_BASE_URL}/api/milestones/project/${project.id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (milestonesRes.ok) {
+            const milestones = await milestonesRes.json();
+            totalMilestones += milestones.length;
+            overdueMilestones += milestones.filter(m => 
+              m.targetDate && new Date(m.targetDate) < new Date() && m.status !== 'Completed'
+            ).length;
+          }
+        } catch (err) {
+          console.error(`Error fetching milestones for project ${project.id}:`, err);
+        }
+
+        // Fetch risks
+        try {
+          const risksRes = await fetch(`${config.API_BASE_URL}/api/risks/project/${project.id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (risksRes.ok) {
+            const risks = await risksRes.json();
+            openRisks += risks.filter(r => r.status === 'Open').length;
+          }
+        } catch (err) {
+          console.error(`Error fetching risks for project ${project.id}:`, err);
+        }
+
+        // Fetch issues
+        try {
+          const issuesRes = await fetch(`${config.API_BASE_URL}/api/issues/project/${project.id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (issuesRes.ok) {
+            const issues = await issuesRes.json();
+            openIssues += issues.filter(i => i.status === 'Open').length;
+          }
+        } catch (err) {
+          console.error(`Error fetching issues for project ${project.id}:`, err);
+        }
+      }
+
+      setStats({
+        totalTasks,
+        overdueTasks,
+        totalMilestones,
+        overdueMilestones,
+        openRisks,
+        openIssues,
+        totalBudget,
+        spentBudget
+      });
     } catch (err) {
       setError("Failed to load dashboard data");
       console.error(err);
@@ -138,8 +235,8 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        {/* Stats Cards - Row 1 */}
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-6">
           <div className="bg-white p-6 rounded-lg shadow">
             <h3 className="text-gray-600 text-sm font-medium mb-2">Active Projects</h3>
             <p className="text-3xl font-bold text-blue-600">{activeProjects}</p>
@@ -151,10 +248,102 @@ export default function Dashboard() {
           </div>
 
           <div className="bg-white p-6 rounded-lg shadow">
+            <h3 className="text-gray-600 text-sm font-medium mb-2">Total Tasks</h3>
+            <p className="text-3xl font-bold text-indigo-600">{stats.totalTasks}</p>
+            {stats.overdueTasks > 0 && (
+              <p className="text-sm text-red-600 mt-1">{stats.overdueTasks} overdue</p>
+            )}
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow">
+            <h3 className="text-gray-600 text-sm font-medium mb-2">Total Milestones</h3>
+            <p className="text-3xl font-bold text-purple-600">{stats.totalMilestones}</p>
+            {stats.overdueMilestones > 0 && (
+              <p className="text-sm text-red-600 mt-1">{stats.overdueMilestones} overdue</p>
+            )}
+          </div>
+        </div>
+
+        {/* Stats Cards - Row 2 */}
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white p-6 rounded-lg shadow">
+            <h3 className="text-gray-600 text-sm font-medium mb-2">Open Risks</h3>
+            <p className="text-3xl font-bold text-orange-600">{stats.openRisks}</p>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow">
+            <h3 className="text-gray-600 text-sm font-medium mb-2">Open Issues</h3>
+            <p className="text-3xl font-bold text-red-600">{stats.openIssues}</p>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow">
+            <h3 className="text-gray-600 text-sm font-medium mb-2">Total Budget</h3>
+            <p className="text-2xl font-bold text-gray-800">${stats.totalBudget.toLocaleString()}</p>
+            {stats.totalBudget > 0 && (
+              <p className="text-sm text-gray-500 mt-1">
+                {((stats.spentBudget / stats.totalBudget) * 100).toFixed(1)}% utilized
+              </p>
+            )}
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow">
             <h3 className="text-gray-600 text-sm font-medium mb-2">Total Reports</h3>
             <p className="text-3xl font-bold text-purple-600">{totalReports}</p>
           </div>
         </div>
+
+        {/* Alerts Section */}
+        {(stats.overdueTasks > 0 || stats.overdueMilestones > 0 || stats.openRisks > 0 || stats.openIssues > 0) && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+            <h3 className="text-lg font-semibold text-yellow-800 mb-3">⚠️ Attention Required</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {stats.overdueTasks > 0 && (
+                <div className="bg-white rounded p-3 border border-yellow-300">
+                  <p className="text-sm font-medium text-yellow-800">{stats.overdueTasks} Overdue Tasks</p>
+                  <button
+                    onClick={() => navigate("/projects")}
+                    className="text-xs text-yellow-600 hover:underline mt-1"
+                  >
+                    View Tasks →
+                  </button>
+                </div>
+              )}
+              {stats.overdueMilestones > 0 && (
+                <div className="bg-white rounded p-3 border border-yellow-300">
+                  <p className="text-sm font-medium text-yellow-800">{stats.overdueMilestones} Overdue Milestones</p>
+                  <button
+                    onClick={() => navigate("/projects")}
+                    className="text-xs text-yellow-600 hover:underline mt-1"
+                  >
+                    View Milestones →
+                  </button>
+                </div>
+              )}
+              {stats.openRisks > 0 && (
+                <div className="bg-white rounded p-3 border border-orange-300">
+                  <p className="text-sm font-medium text-orange-800">{stats.openRisks} Open Risks</p>
+                  <button
+                    onClick={() => navigate("/projects")}
+                    className="text-xs text-orange-600 hover:underline mt-1"
+                  >
+                    View Risks →
+                  </button>
+                </div>
+              )}
+              {stats.openIssues > 0 && (
+                <div className="bg-white rounded p-3 border border-red-300">
+                  <p className="text-sm font-medium text-red-800">{stats.openIssues} Open Issues</p>
+                  <button
+                    onClick={() => navigate("/projects")}
+                    className="text-xs text-red-600 hover:underline mt-1"
+                  >
+                    View Issues →
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Recent Projects */}
         <div className="bg-white rounded-lg shadow p-6 mb-6">
@@ -179,6 +368,7 @@ export default function Dashboard() {
                     <th className="text-left py-2 text-gray-700 font-medium">Client</th>
                     <th className="text-left py-2 text-gray-700 font-medium">Status</th>
                     <th className="text-left py-2 text-gray-700 font-medium">Risk Score</th>
+                    <th className="text-left py-2 text-gray-700 font-medium">Budget</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -211,6 +401,15 @@ export default function Dashboard() {
                             }`}
                           >
                             {project.riskScore}/100
+                          </span>
+                        ) : (
+                          <span className="text-gray-400 text-sm">N/A</span>
+                        )}
+                      </td>
+                      <td className="py-3 text-gray-600">
+                        {project.budgetedAmount > 0 ? (
+                          <span className="text-sm">
+                            {project.currencyCode || 'USD'} {project.budgetedAmount.toLocaleString()}
                           </span>
                         ) : (
                           <span className="text-gray-400 text-sm">N/A</span>
