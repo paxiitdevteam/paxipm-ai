@@ -1,45 +1,77 @@
-# PaxiPM AI - Port Configuration
+# PaxiPM AI - Fixed Port Configuration
 
-## Fixed Ports (DO NOT CHANGE)
+## **🚨 IMPORTANT: PORTS MUST NOT BE CHANGED**
 
-### Backend Server
-- **Port**: `5000`
-- **URL**: `http://localhost:5000`
-- **Configuration**: Set in `.env` as `PORT=5000`
-- **Default**: If `PORT` not set in `.env`, defaults to `5000`
+All servers must run with these **FIXED** ports from the **ROOT** directory.
 
-### Frontend Server
-- **Port**: `3000`
-- **URL**: `http://localhost:3000`
-- **Configuration**: React default port (can be set via `PORT` environment variable)
-- **Default**: `3000` (React default)
+---
 
-### AI Engine Server
-- **Port**: `8000`
-- **URL**: `http://localhost:8000`
-- **Configuration**: Set in `ai_engine/main.py` and `.env` as `AI_ENGINE_URL`
-- **Default**: `8000`
+## Server Ports
+
+| Server | Port | URL | Command from Root |
+|--------|------|-----|-------------------|
+| **Frontend** | **3000** | http://localhost:3000 | `cd frontend && npm start` |
+| **Backend** | **5000** | http://localhost:5000 | `cd backend && node app.js` |
+| **AI Engine** | **8000** | http://localhost:8000 | `cd ai_engine && python main.py` |
+
+---
+
+## ✅ Startup Scripts (Use These!)
+
+### Linux/Mac:
+```bash
+./start-all.sh
+```
+
+### Windows:
+```bash
+start-all.bat
+```
+
+### Stop All Servers:
+- Linux/Mac: `./stop-all.sh`
+- Windows: `stop-all.bat`
+
+---
+
+## ⚠️ Rules
+
+1. **NEVER change these ports**
+2. **ALWAYS start from root directory**
+3. **Use the startup scripts provided**
+4. **Ports must match configuration files**
+
+---
 
 ## Configuration Files
 
-### Backend
-- `.env` in project root: `PORT=5000`
-- `backend/app.js`: Uses `process.env.PORT || 5000`
+### Frontend Config:
+- **File:** `frontend/src/config.js`
+- **Port:** 5000 (backend URL)
 
-### Frontend
-- `frontend/src/config.js`: Uses `process.env.REACT_APP_API_URL || "http://localhost:5000"`
-- All frontend pages import and use `config.API_BASE_URL` instead of hardcoded URLs
+### Backend Config:
+- **File:** `backend/app.js`
+- **Port:** 5000 (default)
 
-### AI Engine
-- `.env` in project root: `AI_ENGINE_URL=http://localhost:8000`
-- `ai_engine/main.py`: Uses port `8000` by default
+### AI Engine Config:
+- **File:** `ai_engine/main.py`
+- **Port:** 8000 (default)
 
-## Important Notes
+---
 
-1. **DO NOT** change port numbers in code - use environment variables
-2. **DO NOT** hardcode URLs - always use `config.API_BASE_URL` in frontend
-3. If ports need to change, update:
-   - `.env` file for backend/AI engine
-   - `frontend/src/config.js` for frontend (or use `REACT_APP_API_URL` env var)
-4. All ports are fixed and stable - they will not change automatically
+## Verification
 
+After starting servers, verify all are running:
+
+```bash
+# Check all ports
+curl http://localhost:3000  # Frontend
+curl http://localhost:5000  # Backend
+curl http://localhost:8000  # AI Engine
+```
+
+All should return HTTP 200 or valid responses.
+
+---
+
+**Last Updated:** Phase 3 Complete
