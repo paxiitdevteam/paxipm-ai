@@ -1,7 +1,44 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import config from "../config";
 
 export default function Home() {
+  const [projectName, setProjectName] = useState("");
+  const [description, setDescription] = useState("");
+  const [charter, setCharter] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleGenerate = async () => {
+    if (!projectName || !description) {
+      setError("Please fill in both project name and description");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+    setCharter("");
+
+    try {
+      const res = await fetch(`${config.API_BASE_URL}/api/ai/charter`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ projectName, description }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to generate charter");
+      }
+
+      setCharter(data.charter || "Charter generated successfully");
+    } catch (err) {
+      setError(err.message || "Failed to generate charter. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation Header */}
@@ -38,16 +75,30 @@ export default function Home() {
               Automate project setup, predict risks, and generate insights with AI. 
               <span className="font-semibold text-gray-900">Built specifically for IT infrastructure and software delivery projects.</span>
             </p>
+            <p className="text-lg text-gray-700 mb-8 max-w-3xl mx-auto">
+              From hardware refresh to AI-powered software delivery, PaxiPM AI helps you plan, execute, and deliver faster.
+            </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button
+                onClick={() => {
+                  const aiSection = document.getElementById("ai-demo-section");
+                  if (aiSection) {
+                    aiSection.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }
+                }}
+                className="bg-blue-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-blue-700 transition shadow-lg"
+              >
+                Try AI Project Setup
+              </button>
               <Link
                 to="/register"
-                className="bg-blue-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-blue-700 transition shadow-lg"
+                className="bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-gray-50 transition shadow-lg border-2 border-blue-600"
               >
                 Start Free Trial
               </Link>
               <Link
                 to="/login"
-                className="bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-gray-50 transition shadow-lg border-2 border-blue-600"
+                className="bg-gray-100 text-gray-700 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-gray-200 transition shadow-lg"
               >
                 Sign In
               </Link>
@@ -59,8 +110,70 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* IT Project Types Section */}
       <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              We Deliver Complex IT and Software Projects
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Manage IT infrastructure and software projects with precision. From hardware refresh to AI-powered software delivery.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
+            {[
+              {
+                title: "Device Lifecycle & PC Refresh",
+                desc: "End-to-end hardware rollout, configuration, and asset management for large enterprises.",
+                icon: "💻"
+              },
+              {
+                title: "Network & Cloud Transformation",
+                desc: "LAN/WAN upgrades, Wi-Fi redesigns, and hybrid cloud migration with Azure and AWS.",
+                icon: "☁️"
+              },
+              {
+                title: "Software & SaaS Delivery",
+                desc: "Full-stack software projects managed with Agile, Scrum, and AI automation.",
+                icon: "🚀"
+              },
+              {
+                title: "Cybersecurity & Compliance",
+                desc: "Zero Trust, MFA, GDPR, and ISO 27001-aligned project delivery.",
+                icon: "🔒"
+              },
+              {
+                title: "Event & Venue IT Systems",
+                desc: "Digital infrastructure deployment for stadiums and large venues, including CRM and POS systems.",
+                icon: "🏟️"
+              },
+              {
+                title: "DevOps & Automation",
+                desc: "CI/CD, Docker, and infrastructure automation using modern DevOps practices.",
+                icon: "⚙️"
+              },
+            ].map((item, idx) => (
+              <div
+                key={idx}
+                className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl shadow-md p-6 hover:shadow-xl transition-all duration-300 border border-gray-200"
+              >
+                <div className="text-4xl mb-4">{item.icon}</div>
+                <h3 className="text-xl font-semibold mb-3 text-gray-900">
+                  {item.title}
+                </h3>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  {item.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
@@ -140,8 +253,96 @@ export default function Home() {
         </div>
       </section>
 
+      {/* AI Project Setup Demo Section */}
+      <section id="ai-demo-section" className="py-20 bg-gradient-to-br from-blue-50 to-indigo-100 w-full">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              AI Project Setup Demo
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Try it now! Describe your IT infrastructure or software delivery project, and our AI will generate a professional project charter and WBS instantly.
+            </p>
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-xl p-8 md:p-10">
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Project Name
+                </label>
+                <input
+                  type="text"
+                  className="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="e.g., Enterprise PC Refresh 2025"
+                  value={projectName}
+                  onChange={(e) => setProjectName(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Project Description
+                </label>
+                <textarea
+                  className="border border-gray-300 rounded-lg p-3 w-full h-32 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  placeholder="Describe your project: goals, scope, timeline, team size, key challenges..."
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <button
+              onClick={handleGenerate}
+              disabled={loading || !projectName || !description}
+              className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold w-full hover:bg-blue-700 transition shadow-lg disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:bg-gray-400"
+            >
+              {loading ? "Generating Charter..." : "Generate AI Charter"}
+            </button>
+
+            {error && (
+              <div className="mt-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                <p className="text-sm">{error}</p>
+              </div>
+            )}
+
+            {charter && (
+              <div className="mt-6 bg-gradient-to-br from-gray-50 to-blue-50 p-6 rounded-lg border border-gray-200">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    AI-Generated Project Charter
+                  </h3>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(charter);
+                      alert("Charter copied to clipboard!");
+                    }}
+                    className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                  >
+                    Copy
+                  </button>
+                </div>
+                <div className="prose prose-sm max-w-none">
+                  <pre className="text-gray-700 text-sm whitespace-pre-wrap font-sans bg-white p-4 rounded border border-gray-200 overflow-x-auto">
+                    {charter}
+                  </pre>
+                </div>
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <Link
+                    to="/register"
+                    className="text-blue-600 hover:text-blue-700 font-medium text-sm"
+                  >
+                    Create account to save and manage this charter →
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
       {/* How It Works Section */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">How It Works</h2>
@@ -185,7 +386,7 @@ export default function Home() {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
@@ -316,8 +517,11 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
               <h3 className="text-white font-bold text-xl mb-4">PaxiPM AI</h3>
-              <p className="text-sm">
-                AI-powered project management specifically designed for IT infrastructure and software delivery projects. Perfect for PC refresh initiatives and enterprise deployments.
+              <p className="text-sm leading-relaxed">
+                AI-powered project management specifically designed for IT infrastructure and software delivery projects. Perfect for PC refresh initiatives, network transformations, and enterprise deployments.
+              </p>
+              <p className="text-xs text-gray-400 mt-2">
+                From hardware refresh to cloud migration, manage it all with AI.
               </p>
             </div>
             <div>
