@@ -1,6 +1,6 @@
 // Project model
 class Project {
-  constructor(id, title, description, client, startDate, endDate, status, userId, riskScore) {
+  constructor(id, title, description, client, startDate, endDate, status, userId, riskScore, budgetedAmount, spentAmount, currencyCode) {
     this.id = id;
     this.title = title;
     this.description = description;
@@ -10,6 +10,9 @@ class Project {
     this.status = status;
     this.userId = userId;
     this.riskScore = riskScore;
+    this.budgetedAmount = budgetedAmount || 0;
+    this.spentAmount = spentAmount || 0;
+    this.currencyCode = currencyCode || 'USD';
     this.createdAt = new Date();
   }
 
@@ -23,7 +26,10 @@ class Project {
       row.end_date,
       row.status,
       row.user_id,
-      row.risk_score || null
+      row.risk_score || null,
+      parseFloat(row.budgeted_amount) || 0,
+      parseFloat(row.spent_amount) || 0,
+      row.currency_code || 'USD'
     );
   }
 
@@ -37,7 +43,12 @@ class Project {
       endDate: this.endDate,
       status: this.status,
       userId: this.userId,
-      riskScore: this.riskScore || null
+      riskScore: this.riskScore || null,
+      budgetedAmount: this.budgetedAmount,
+      spentAmount: this.spentAmount,
+      currencyCode: this.currencyCode,
+      remainingBudget: this.budgetedAmount - this.spentAmount,
+      budgetUtilization: this.budgetedAmount > 0 ? (this.spentAmount / this.budgetedAmount) * 100 : 0
     };
   }
 }

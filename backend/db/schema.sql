@@ -20,6 +20,9 @@ CREATE TABLE IF NOT EXISTS projects (
     end_date DATE,
     status VARCHAR(50) DEFAULT 'Active',
     risk_score INT CHECK (risk_score >= 0 AND risk_score <= 100),
+    budgeted_amount DECIMAL(15, 2) DEFAULT 0.00,
+    spent_amount DECIMAL(15, 2) DEFAULT 0.00,
+    currency_code VARCHAR(3) DEFAULT 'USD',
     user_id INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE

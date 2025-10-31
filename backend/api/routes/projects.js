@@ -139,15 +139,26 @@ router.get('/', authenticateToken, async (req, res) => {
  */
 router.post('/', authenticateToken, async (req, res) => {
   try {
-    const { title, description, client, startDate, endDate, status } = req.body;
+    const { title, description, client, startDate, endDate, status, budgetedAmount, spentAmount, currencyCode } = req.body;
 
     if (!title) {
       return res.status(400).json({ error: 'Title is required' });
     }
 
     const insertResult = await pool.query(
-      'INSERT INTO projects (title, description, client, start_date, end_date, status, user_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [title, description || null, client || null, startDate || null, endDate || null, status || 'Active', req.user.id]
+      'INSERT INTO projects (title, description, client, start_date, end_date, status, budgeted_amount, spent_amount, currency_code, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [
+        title,
+        description || null,
+        client || null,
+        startDate || null,
+        endDate || null,
+        status || 'Active',
+        budgetedAmount || 0,
+        spentAmount || 0,
+        currencyCode || 'USD',
+        req.user.id
+      ]
     );
 
     // Get insert ID (works for both mysql2 and SQLite)

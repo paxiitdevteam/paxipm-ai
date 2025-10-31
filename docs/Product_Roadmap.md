@@ -45,6 +45,13 @@ Deliver an enterprise-grade AI Project and Service Management platform hosted on
 - Risk prediction and reporting
 - Gantt and Kanban visualization
 - Resource management and workload tracking
+- **Budget Management & Multi-Currency Support**
+  - Budgeted amount, spent amount, and remaining budget tracking
+  - Universal currency support (USD, EUR, GBP, JPY, CNY, INR, AUD, CAD, and 100+ currencies)
+  - Currency selection per project or organization
+  - Budget health indicators (On Budget, Over Budget, Under Budget)
+  - Budget utilization percentage and trend analysis
+  - Multi-currency reports and financial dashboards
 
 ### 4.2 IT Infrastructure Projects
 - Hardware refresh cycles (PCs, laptops, tablets, phones, iPads)
@@ -116,7 +123,7 @@ Deliver an enterprise-grade AI Project and Service Management platform hosted on
 ---
 
 ### **Phase 2 – Core Project Management**
-**Goal:** Expand project control with tasks, milestones, and resources.  
+**Goal:** Expand project control with tasks, milestones, resources, and budget management.  
 **Duration:** 4 sprints.
 
 **Deliverables:**
@@ -124,6 +131,13 @@ Deliver an enterprise-grade AI Project and Service Management platform hosted on
 - Milestone and Gantt view
 - Risk and issue registers
 - Resource management page
+- **Budget Management & Multi-Currency Support**
+  - Budget tracking (budgeted, spent, remaining)
+  - Universal currency selection (USD, EUR, GBP, JPY, CNY, INR, AUD, CAD, and 100+ currencies)
+  - Currency per project or organization setting
+  - Budget health indicators and alerts
+  - Budget utilization tracking and reports
+  - Multi-currency financial dashboards
 - File uploads per project
 - Email/in-app notifications
 - Frontend state management (Context API)
