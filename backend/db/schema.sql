@@ -244,3 +244,55 @@ CREATE INDEX IF NOT EXISTS idx_incidents_sla_id ON incidents(sla_id);
 CREATE INDEX IF NOT EXISTS idx_changes_project_id ON changes(project_id);
 CREATE INDEX IF NOT EXISTS idx_changes_status ON changes(status);
 CREATE INDEX IF NOT EXISTS idx_changes_change_type ON changes(change_type);
+
+-- Phase 3: AI Enhancement Tables
+
+-- AI Chat Conversations table
+CREATE TABLE IF NOT EXISTS ai_conversations (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    project_id INT,
+    title VARCHAR(255),
+    language VARCHAR(10) DEFAULT 'en',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+);
+
+-- AI Chat Messages table
+CREATE TABLE IF NOT EXISTS ai_messages (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    conversation_id INT,
+    role ENUM('user', 'assistant', 'system') DEFAULT 'user',
+    content TEXT NOT NULL,
+    metadata JSON,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (conversation_id) REFERENCES ai_conversations(id) ON DELETE CASCADE
+);
+
+-- AI Usage Logs table
+CREATE TABLE IF NOT EXISTS ai_usage_logs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    project_id INT,
+    endpoint VARCHAR(255) NOT NULL,
+    request_data JSON,
+    response_data JSON,
+    tokens_used INT,
+    duration_ms INT,
+    cost_estimate DECIMAL(10, 4),
+    language VARCHAR(10) DEFAULT 'en',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL
+);
+
+-- Phase 3 Indexes
+CREATE INDEX IF NOT EXISTS idx_conversations_user_id ON ai_conversations(user_id);
+CREATE INDEX IF NOT EXISTS idx_conversations_project_id ON ai_conversations(project_id);
+CREATE INDEX IF NOT EXISTS idx_messages_conversation_id ON ai_messages(conversation_id);
+CREATE INDEX IF NOT EXISTS idx_usage_logs_user_id ON ai_usage_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_usage_logs_project_id ON ai_usage_logs(project_id);
+CREATE INDEX IF NOT EXISTS idx_usage_logs_endpoint ON ai_usage_logs(endpoint);
+CREATE INDEX IF NOT EXISTS idx_usage_logs_created_at ON ai_usage_logs(created_at);

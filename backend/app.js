@@ -21,6 +21,8 @@ import slaRoutes from "./api/routes/sla.js";
 import itilIncidentRoutes from "./api/routes/itil_incidents.js";
 import changeRoutes from "./api/routes/changes.js";
 import aiRoutes from "./api/routes/ai.js";
+import chatRoutes from "./api/routes/chat.js";
+import aiUsageRoutes from "./api/routes/ai_usage.js";
 
 // Import Swagger
 import swaggerJsdoc from "swagger-jsdoc";
@@ -139,6 +141,8 @@ app.use("/api/itil-incidents", itilIncidentRoutes);
 app.use("/api/changes", changeRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/ai", aiRoutes);
+app.use("/api/chat", chatRoutes);
+app.use("/api/ai-usage", aiUsageRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Backend running on port ${PORT}`));

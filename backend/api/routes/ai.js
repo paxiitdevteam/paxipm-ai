@@ -231,6 +231,52 @@ router.post('/reporting', authenticateToken, async (req, res) => {
   }
 });
 
+// Lessons Learned Generator endpoint
+router.post('/lessons-learned', authenticateToken, async (req, res) => {
+  try {
+    const { projectId, projectData } = req.body;
+
+    if (!projectId && !projectData) {
+      return res.status(400).json({ 
+        error: 'Project ID or project data is required' 
+      });
+    }
+
+    // Send request to AI Engine with auth token
+    const response = await axios.post(
+      `${AI_ENGINE_URL}/lessons-learned`,
+      {
+        project_id: projectId,
+        project_data: projectData
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${req.headers.authorization?.split(' ')[1]}`
+        }
+      }
+    );
+
+    // Save to database if project ID provided
+    if (projectId && response.data.status === 'success') {
+      const lessonsData = response.data.data;
+      
+      // Save as report
+      await pool.execute(
+        'INSERT INTO reports (project_id, summary) VALUES (?, ?)',
+        [projectId, JSON.stringify(lessonsData)]
+      );
+    }
+
+    res.json(response.data);
+  } catch (error) {
+    console.error('AI Lessons Learned error:', error);
+    res.status(500).json({ 
+      error: 'Failed to generate lessons learned', 
+      details: error.response?.data?.detail || error.message 
+    });
+  }
+});
+
 // PMO Report endpoint (Professional status report)
 router.post('/pmo-report', authenticateToken, async (req, res) => {
   try {

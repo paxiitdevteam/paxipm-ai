@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import ChatAssistant from "../components/ChatAssistant";
 import config from "../config";
 
 export default function AITools() {
-  const [activeTab, setActiveTab] = useState("charter");
+  const [activeTab, setActiveTab] = useState("chat");
   const navigate = useNavigate();
 
   return (
@@ -17,10 +18,20 @@ export default function AITools() {
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Tabs */}
         <div className="bg-white rounded-lg shadow mb-6">
-          <div className="flex border-b">
+          <div className="flex border-b overflow-x-auto">
+            <button
+              onClick={() => setActiveTab("chat")}
+              className={`px-6 py-3 font-medium whitespace-nowrap ${
+                activeTab === "chat"
+                  ? "text-blue-600 border-b-2 border-blue-600"
+                  : "text-gray-600 hover:text-blue-600"
+              }`}
+            >
+              AI Chat Assistant
+            </button>
             <button
               onClick={() => setActiveTab("charter")}
-              className={`px-6 py-3 font-medium ${
+              className={`px-6 py-3 font-medium whitespace-nowrap ${
                 activeTab === "charter"
                   ? "text-blue-600 border-b-2 border-blue-600"
                   : "text-gray-600 hover:text-blue-600"
@@ -71,6 +82,11 @@ export default function AITools() {
           </div>
 
           <div className="p-6">
+            {activeTab === "chat" && (
+              <div className="h-[600px]">
+                <ChatAssistant />
+              </div>
+            )}
             {activeTab === "charter" && <CharterGenerator />}
             {activeTab === "risk-analysis" && <RiskAnalysisGenerator />}
             {activeTab === "project-setup" && <ProjectSetupGenerator />}
