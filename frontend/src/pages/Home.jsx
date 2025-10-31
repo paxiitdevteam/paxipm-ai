@@ -177,6 +177,127 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Software Projects Examples Section */}
+      <section className="py-20 bg-gradient-to-br from-blue-50 to-indigo-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              Software Projects You Can Manage
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Real-world software development projects managed with PaxiPM AI. From web applications to mobile apps, APIs, and enterprise systems.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              {
+                title: "CRM Implementation",
+                desc: "Salesforce, HubSpot, or custom CRM deployment with user migration, data integration, and training programs.",
+                category: "Enterprise Software",
+                icon: "📊"
+              },
+              {
+                title: "ERP System Migration",
+                desc: "SAP, Oracle, or Microsoft Dynamics migration with data migration, process redesign, and change management.",
+                category: "Enterprise Software",
+                icon: "🏢"
+              },
+              {
+                title: "Mobile App Development",
+                desc: "iOS and Android native apps or cross-platform React Native/Flutter projects with backend APIs and deployment.",
+                category: "Mobile Development",
+                icon: "📱"
+              },
+              {
+                title: "E-commerce Platform",
+                desc: "Shopify, WooCommerce, or custom e-commerce solutions with payment integration, inventory management, and analytics.",
+                category: "Web Development",
+                icon: "🛒"
+              },
+              {
+                title: "API Development & Integration",
+                desc: "RESTful APIs, GraphQL endpoints, third-party integrations (Stripe, Twilio, SendGrid) with documentation and testing.",
+                category: "Backend Development",
+                icon: "🔌"
+              },
+              {
+                title: "Data Analytics Platform",
+                desc: "BI dashboards, data warehouses, ETL pipelines with Power BI, Tableau, or custom analytics solutions.",
+                category: "Data & Analytics",
+                icon: "📈"
+              },
+              {
+                title: "Microservices Architecture",
+                desc: "Kubernetes-based microservices with Docker, service mesh, API gateways, and distributed system monitoring.",
+                category: "Cloud & DevOps",
+                icon: "☁️"
+              },
+              {
+                title: "Legacy System Modernization",
+                desc: "Monolith to microservices migration, mainframe modernization, database upgrades, and cloud migration.",
+                category: "Enterprise Software",
+                icon: "🔄"
+              },
+              {
+                title: "SaaS Product Development",
+                desc: "Multi-tenant SaaS applications with subscription management, billing, authentication, and user management.",
+                category: "SaaS Development",
+                icon: "💼"
+              },
+              {
+                title: "Content Management System",
+                desc: "WordPress, Drupal, or custom CMS with theme development, plugin creation, and content migration.",
+                category: "Web Development",
+                icon: "📝"
+              },
+              {
+                title: "IoT Platform Development",
+                desc: "IoT device management, edge computing, real-time data processing, and cloud connectivity solutions.",
+                category: "IoT & Embedded",
+                icon: "🌐"
+              },
+              {
+                title: "AI/ML Model Deployment",
+                desc: "Machine learning model training, deployment pipelines, MLOps infrastructure, and AI service integration.",
+                category: "AI & Machine Learning",
+                icon: "🤖"
+              },
+            ].map((item, idx) => (
+              <div
+                key={idx}
+                className="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all duration-300 border border-gray-200 hover:border-blue-300"
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className="text-3xl">{item.icon}</div>
+                  <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                    {item.category}
+                  </span>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  {item.title}
+                </h3>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  {item.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-12 text-center">
+            <p className="text-gray-600 mb-4">
+              Plus many more software project types...
+            </p>
+            <Link
+              to="/register"
+              className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition shadow-lg"
+            >
+              Start Managing Your Software Projects
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Features Section */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
