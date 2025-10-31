@@ -222,4 +222,198 @@ router.get('/:id', authenticateToken, async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/projects/{id}:
+ *   patch:
+ *     summary: Update a project
+ *     tags: [Projects]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Project ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               client:
+ *                 type: string
+ *               startDate:
+ *                 type: string
+ *                 format: date
+ *               endDate:
+ *                 type: string
+ *                 format: date
+ *               status:
+ *                 type: string
+ *                 enum: [Active, Completed, On Hold, Cancelled]
+ *               budgetedAmount:
+ *                 type: number
+ *               spentAmount:
+ *                 type: number
+ *               currencyCode:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Project updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Project'
+ *       404:
+ *         description: Project not found
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
+router.patch('/:id', authenticateToken, async (req, res) => {
+  try {
+    const projectId = req.params.id;
+    const { title, description, client, startDate, endDate, status, budgetedAmount, spentAmount, currencyCode, riskScore } = req.body;
+
+    // Check if project exists and belongs to user
+    const [existingRows] = await pool.execute(
+      'SELECT * FROM projects WHERE id = ? AND user_id = ?',
+      [projectId, req.user.id]
+    );
+
+    if (existingRows.length === 0) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+
+    // Build dynamic UPDATE query
+    const updateFields = [];
+    const updateValues = [];
+
+    if (title !== undefined) {
+      updateFields.push('title = ?');
+      updateValues.push(title);
+    }
+    if (description !== undefined) {
+      updateFields.push('description = ?');
+      updateValues.push(description);
+    }
+    if (client !== undefined) {
+      updateFields.push('client = ?');
+      updateValues.push(client);
+    }
+    if (startDate !== undefined) {
+      updateFields.push('start_date = ?');
+      updateValues.push(startDate);
+    }
+    if (endDate !== undefined) {
+      updateFields.push('end_date = ?');
+      updateValues.push(endDate);
+    }
+    if (status !== undefined) {
+      updateFields.push('status = ?');
+      updateValues.push(status);
+    }
+    if (budgetedAmount !== undefined) {
+      updateFields.push('budgeted_amount = ?');
+      updateValues.push(budgetedAmount);
+    }
+    if (spentAmount !== undefined) {
+      updateFields.push('spent_amount = ?');
+      updateValues.push(spentAmount);
+    }
+    if (currencyCode !== undefined) {
+      updateFields.push('currency_code = ?');
+      updateValues.push(currencyCode);
+    }
+    if (riskScore !== undefined) {
+      updateFields.push('risk_score = ?');
+      updateValues.push(riskScore);
+    }
+
+    if (updateFields.length === 0) {
+      return res.status(400).json({ error: 'No fields to update' });
+    }
+
+    updateValues.push(projectId, req.user.id);
+
+    await pool.execute(
+      `UPDATE projects SET ${updateFields.join(', ')} WHERE id = ? AND user_id = ?`,
+      updateValues
+    );
+
+    // Fetch updated project
+    const [updatedRows] = await pool.execute(
+      'SELECT * FROM projects WHERE id = ? AND user_id = ?',
+      [projectId, req.user.id]
+    );
+
+    const project = Project.fromDb(updatedRows[0]);
+    res.json(project.toJSON());
+  } catch (error) {
+    console.error('Error updating project:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+/**
+ * @swagger
+ * /api/projects/{id}:
+ *   delete:
+ *     summary: Delete a project
+ *     tags: [Projects]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Project ID
+ *     responses:
+ *       200:
+ *         description: Project deleted successfully
+ *       404:
+ *         description: Project not found
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
+router.delete('/:id', authenticateToken, async (req, res) => {
+  try {
+    const projectId = req.params.id;
+
+    // Check if project exists and belongs to user
+    const [existingRows] = await pool.execute(
+      'SELECT * FROM projects WHERE id = ? AND user_id = ?',
+      [projectId, req.user.id]
+    );
+
+    if (existingRows.length === 0) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+
+    // Delete project (CASCADE will delete related tasks and reports)
+    await pool.execute(
+      'DELETE FROM projects WHERE id = ? AND user_id = ?',
+      [projectId, req.user.id]
+    );
+
+    res.json({ message: 'Project deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting project:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 export default router;

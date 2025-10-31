@@ -9,6 +9,7 @@ import { fileURLToPath } from "url";
 import authRoutes from "./api/routes/auth.js";
 import projectRoutes from "./api/routes/projects.js";
 import reportRoutes from "./api/routes/reports.js";
+import taskRoutes from "./api/routes/tasks.js";
 import aiRoutes from "./api/routes/ai.js";
 
 // Import Swagger
@@ -115,6 +116,7 @@ app.post("/api/ai/charter", async (req, res) => {
 // PMS Routes Integration
 app.use("/api/auth", authRoutes);
 app.use("/api/projects", projectRoutes);
+app.use("/api/tasks", taskRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/ai", aiRoutes);
 
