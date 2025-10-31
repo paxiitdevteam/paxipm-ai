@@ -1,0 +1,11 @@
+# Frontend Docker ignore
+node_modules
+npm-debug.log
+.env
+.git
+*.md
+.DS_Store
+dist
+build
+.vite
+

@@ -1,0 +1,11 @@
+# Docker ignore for root
+node_modules
+npm-debug.log
+.env
+.git
+.gitignore
+*.md
+.DS_Store
+dist
+build
+

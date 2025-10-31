@@ -1,17 +1,14 @@
 # AI Manager - handles AI operations
 import os
 from openai import OpenAI
-from langchain_openai import ChatOpenAI
-from langchain_core.messages import HumanMessage
-import psycopg2
 from dotenv import load_dotenv
 
 load_dotenv()
 
 class AIManager:
     def __init__(self):
-        self.openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-        self.llm = ChatOpenAI(model="gpt-4", temperature=0.7) if os.getenv("OPENAI_API_KEY") else None
+        api_key = os.getenv("OPENAI_API_KEY")
+        self.openai_client = OpenAI(api_key=api_key) if api_key else None
         
         # Database connection for fetching project data
         self.db_config = {
@@ -36,16 +33,14 @@ class AIManager:
             )
             
             # Generate using OpenAI
-            if self.llm:
-                response = self.llm.invoke([HumanMessage(content=prompt)])
-                return response.content
-            else:
-                # Fallback: use OpenAI client directly
-                response = self.openai_client.chat.completions.create(
-                    model="gpt-4",
-                    messages=[{"role": "user", "content": prompt}]
-                )
-                return response.choices[0].message.content
+            if not self.openai_client:
+                return f"AI-generated charter for {projectName}\n\n{description}"
+            
+            response = self.openai_client.chat.completions.create(
+                model="gpt-4",
+                messages=[{"role": "user", "content": prompt}]
+            )
+            return response.choices[0].message.content
         except Exception as e:
             print(f"Error generating charter: {e}")
             raise

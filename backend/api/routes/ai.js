@@ -64,8 +64,8 @@ router.post('/risk', authenticateToken, async (req, res) => {
 
     // Optionally save risk score to database
     if (response.data.risk_score !== undefined) {
-      await pool.query(
-        'UPDATE projects SET risk_score = $1 WHERE id = $2',
+      await pool.execute(
+        'UPDATE projects SET risk_score = ? WHERE id = ?',
         [response.data.risk_score, projectId]
       );
     }
@@ -80,7 +80,7 @@ router.post('/risk', authenticateToken, async (req, res) => {
   }
 });
 
-// Project setup endpoint (Model Flow example)
+// Project setup endpoint (generates charter + WBS + scope from project data)
 router.post('/project-setup', authenticateToken, async (req, res) => {
   try {
     const { project, progress } = req.body;
@@ -107,8 +107,8 @@ router.post('/project-setup', authenticateToken, async (req, res) => {
       const setupData = response.data.data;
       
       // Save project setup data
-      await pool.query(
-        'INSERT INTO reports (project_id, summary) VALUES ($1, $2)',
+      await pool.execute(
+        'INSERT INTO reports (project_id, summary) VALUES (?, ?)',
         [req.body.projectId, JSON.stringify(setupData)]
       );
     }
@@ -154,15 +154,15 @@ router.post('/risk-analysis', authenticateToken, async (req, res) => {
       const analysisData = response.data.data;
       
       // Save as report
-      await pool.query(
-        'INSERT INTO reports (project_id, summary) VALUES ($1, $2)',
+      await pool.execute(
+        'INSERT INTO reports (project_id, summary) VALUES (?, ?)',
         [req.body.projectId, JSON.stringify(analysisData)]
       );
       
       // Update project with charter info if needed
       if (analysisData.project_charter) {
-        await pool.query(
-          'UPDATE projects SET description = $1 WHERE id = $2',
+        await pool.execute(
+          'UPDATE projects SET description = ? WHERE id = ?',
           [analysisData.project_charter.executive_summary, req.body.projectId]
         );
       }
@@ -207,15 +207,15 @@ router.post('/reporting', authenticateToken, async (req, res) => {
       const reportData = response.data.data;
       
       // Save report
-      await pool.query(
-        'INSERT INTO reports (project_id, summary) VALUES ($1, $2)',
+      await pool.execute(
+        'INSERT INTO reports (project_id, summary) VALUES (?, ?)',
         [req.body.projectId, JSON.stringify(reportData)]
       );
       
       // Update project risk score if available
       if (reportData.risk_score !== undefined) {
-        await pool.query(
-          'UPDATE projects SET risk_score = $1 WHERE id = $2',
+        await pool.execute(
+          'UPDATE projects SET risk_score = ? WHERE id = ?',
           [reportData.risk_score, req.body.projectId]
         );
       }
@@ -260,8 +260,8 @@ router.post('/pmo-report', authenticateToken, async (req, res) => {
       const reportData = response.data.data;
       
       // Save plain text report and JSON summary
-      await pool.query(
-        'INSERT INTO reports (project_id, summary) VALUES ($1, $2)',
+      await pool.execute(
+        'INSERT INTO reports (project_id, summary) VALUES (?, ?)',
         [req.body.projectId, JSON.stringify({
           plain_text_report: reportData.plain_text_report,
           json_summary: reportData.json_summary,
@@ -271,16 +271,16 @@ router.post('/pmo-report', authenticateToken, async (req, res) => {
       
       // Update project with status if available
       if (reportData.json_summary?.executive_summary?.status) {
-        await pool.query(
-          'UPDATE projects SET status = $1 WHERE id = $2',
+        await pool.execute(
+          'UPDATE projects SET status = ? WHERE id = ?',
           [reportData.json_summary.executive_summary.status, req.body.projectId]
         );
       }
       
       // Update risk score if available in metrics
       if (reportData.json_summary?.metrics?.project_health_score !== undefined) {
-        await pool.query(
-          'UPDATE projects SET risk_score = $1 WHERE id = $2',
+        await pool.execute(
+          'UPDATE projects SET risk_score = ? WHERE id = ?',
           [reportData.json_summary.metrics.project_health_score, req.body.projectId]
         );
       }

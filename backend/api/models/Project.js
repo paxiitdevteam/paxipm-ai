@@ -1,6 +1,6 @@
 // Project model
 class Project {
-  constructor(id, title, description, client, startDate, endDate, status, userId) {
+  constructor(id, title, description, client, startDate, endDate, status, userId, riskScore) {
     this.id = id;
     this.title = title;
     this.description = description;
@@ -9,6 +9,7 @@ class Project {
     this.endDate = endDate;
     this.status = status;
     this.userId = userId;
+    this.riskScore = riskScore;
     this.createdAt = new Date();
   }
 
@@ -21,7 +22,8 @@ class Project {
       row.start_date,
       row.end_date,
       row.status,
-      row.user_id
+      row.user_id,
+      row.risk_score || null
     );
   }
 
@@ -34,7 +36,8 @@ class Project {
       startDate: this.startDate,
       endDate: this.endDate,
       status: this.status,
-      userId: this.userId
+      userId: this.userId,
+      riskScore: this.riskScore || null
     };
   }
 }

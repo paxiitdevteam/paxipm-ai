@@ -1,343 +1,231 @@
-# AI Engine main entry point
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import os
-import time
 from dotenv import load_dotenv
-from ai_manager import AIManager
-from validation import ResponseValidator
-from logger import logger
-from middleware import check_api_key
+import os
+import openai
+from typing import Optional
 
+# Load environment variables
 load_dotenv()
 
-app = FastAPI(title="PaxiPM AI Engine")
+app = FastAPI(
+    title="PaxiPM AI Engine",
+    description="AI-powered project management engine using OpenAI",
+    version="1.0.0"
+)
 
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5000"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Initialize AI Manager
-ai_manager = AIManager()
-validator = ResponseValidator()
+# Initialize OpenAI client
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+if OPENAI_API_KEY and OPENAI_API_KEY != "your_openai_api_key_here":
+    try:
+        from openai import OpenAI
+        openai_client = OpenAI(api_key=OPENAI_API_KEY)
+        print("✅ OpenAI API configured successfully")
+    except Exception as e:
+        print(f"⚠️  OpenAI initialization error: {e}")
+        openai_client = None
+else:
+    print("⚠️  Warning: OPENAI_API_KEY not found or not configured. AI features will use placeholder responses.")
+    openai_client = None
 
-# Request models
 class CharterRequest(BaseModel):
     projectName: str
     description: str
-    client: str = None
+    client: Optional[str] = None
 
 class RiskRequest(BaseModel):
-    project_id: int
+    projectId: int
+    projectData: dict
 
 class ProjectSetupRequest(BaseModel):
-    project: str
-    progress: int
-
-class RiskAnalysisRequest(BaseModel):
-    project_description: str
+    projectName: str
+    description: str
     duration: str
-    team_size: int
+    teamSize: int
 
-class ReportingRequest(BaseModel):
-    progress_data: str
-
-class PMOReportRequest(BaseModel):
-    project_data: str
-
-# Root route
 @app.get("/")
 def root():
-    return {"message": "PaxiPM AI Engine Running"}
+    """Health check endpoint"""
+    return {
+        "message": "PaxiPM AI Engine Running",
+        "openai_configured": bool(OPENAI_API_KEY)
+    }
 
-# Generate project charter
 @app.post("/generate-charter")
-async def generate_charter(req: CharterRequest):
+def generate_charter(req: CharterRequest):
+    """
+    Generate AI-powered project charter
+    
+    Args:
+        req: CharterRequest with projectName and description
+        
+    Returns:
+        JSON with projectName and generated charter text
+    """
+    if not openai_client:
+        # Fallback placeholder response
+        charter_text = f"""# Project Charter: {req.projectName}
+
+## Project Description
+{req.description}
+
+## Objective
+To successfully deliver {req.projectName} within scope, time, and budget constraints.
+
+## Scope
+The project will cover all aspects mentioned in the project description, ensuring comprehensive delivery of objectives.
+
+## Stakeholders
+- Project Sponsor: {req.client or 'To be determined'}
+- Project Manager: Assigned
+- Team Members: To be assigned
+
+## Timeline
+Project timeline will be determined based on detailed planning phase.
+
+## Success Criteria
+- Successful completion of all project deliverables
+- Stakeholder satisfaction
+- On-time and within budget delivery
+
+---
+*Note: This is a placeholder response. Configure OPENAI_API_KEY in .env for AI-generated content.*
+"""
+        return {"projectName": req.projectName, "charter": charter_text}
+    
     try:
-        # Verify API key
-        check_api_key()
-        
-        # Log request
-        logger.log_request("generate-charter", req.dict())
-        
-        charter = await ai_manager.generate_charter(
-            req.projectName,
-            req.description,
-            req.client
+        # OpenAI API call using new client format
+        response = openai_client.chat.completions.create(
+            model="gpt-4",  # or gpt-3.5-turbo for faster/cheaper
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are an expert project management consultant. Generate professional project charters following PMP standards."
+                },
+                {
+                    "role": "user",
+                    "content": f"""Generate a comprehensive project charter for:
+
+Project Name: {req.projectName}
+Description: {req.description}
+Client: {req.client or 'Not specified'}
+
+Include:
+1. Project Overview
+2. Objectives
+3. Scope
+4. Stakeholders
+5. Success Criteria
+6. Timeline Overview
+
+Format as professional markdown."""
+                }
+            ],
+            temperature=0.7,
+            max_tokens=1500
         )
         
-        return {"projectName": req.projectName, "charter": charter}
+        charter_text = response.choices[0].message.content.strip()
+        return {"projectName": req.projectName, "charter": charter_text}
+        
     except Exception as e:
-        logger.log_error("generate-charter", e)
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"OpenAI API Error: {str(e)}")
+        # Return fallback response on error
+        charter_text = f"# Project Charter: {req.projectName}\n\n{req.description}\n\n[AI generation temporarily unavailable]"
+        return {"projectName": req.projectName, "charter": charter_text}
 
-# Calculate risk score
-@app.post("/calculate-risk")
-async def calculate_risk(req: RiskRequest):
-    try:
-        # Verify API key
-        check_api_key()
-        
-        # Log request
-        logger.log_request("calculate-risk", req.dict())
-        
-        risk_score = await ai_manager.calculate_risk_score(req.project_id)
-        
-        response = {"risk_score": risk_score, "project_id": req.project_id}
-        logger.log_response("calculate-risk", response, 0)
-        
-        return response
-    except Exception as e:
-        logger.log_error("calculate-risk", e)
-        raise HTTPException(status_code=500, detail=str(e))
-
-# Project setup (Model Flow example)
-@app.post("/project-setup")
-async def project_setup(req: ProjectSetupRequest):
+@app.post("/analyze-risk")
+def analyze_risk(req: RiskRequest):
     """
-    Complete model flow:
-    1. Backend sends JSON → FastAPI receives
-    2. LangChain builds structured prompt
-    3. OpenAI GPT-4 responds
-    4. Response parsed and validated
-    5. Return structured JSON
+    Analyze project risk using AI
+    
+    Args:
+        req: RiskRequest with projectId and projectData
+        
+    Returns:
+        JSON with risk_score (0-100), risk_summary, and recommendations
     """
-    start_time = time.time()
+    if not openai_client:
+        # Fallback placeholder response
+        return {
+            "risk_score": 50,
+            "risk_summary": "Risk analysis requires OpenAI API configuration.",
+            "recommendations": [
+                "Configure OPENAI_API_KEY in environment variables",
+                "Review project data for potential risks",
+                "Establish risk mitigation strategies"
+            ]
+        }
     
     try:
-        # Verify API key
-        check_api_key()
+        # Prepare project data summary for AI
+        project_summary = f"Project ID: {req.projectId}\n"
+        project_summary += f"Project Data: {str(req.projectData)}"
         
-        # Log request
-        request_data = req.dict()
-        logger.log_request("project-setup", request_data)
-        
-        # Step 1: FastAPI received JSON (already done via Pydantic)
-        
-        # Step 2 & 3: LangChain builds prompt and OpenAI responds
-        response_text = await ai_manager.generate_project_setup(
-            req.project,
-            req.progress
+        response = openai_client.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a risk analysis expert. Analyze project data and provide risk scores (0-100), summaries, and actionable recommendations. Always respond with valid JSON."
+                },
+                {
+                    "role": "user",
+                    "content": f"""Analyze the following project data and provide:
+
+1. Risk Score (0-100): Integer score
+2. Risk Summary: Brief summary of identified risks
+3. Recommendations: List of actionable recommendations
+
+Project Data:
+{project_summary}
+
+Respond ONLY with valid JSON format (no markdown, no code blocks):
+{{
+    "risk_score": <integer 0-100>,
+    "risk_summary": "<text>",
+    "recommendations": ["<recommendation1>", "<recommendation2>"]
+}}"""
+                }
+            ],
+            temperature=0.5,
+            max_tokens=800,
+            response_format={"type": "json_object"}
         )
         
-        # Step 4: Parse and validate response
-        validation_result = validator.validate_project_setup(response_text)
+        # Parse AI response
+        import json
+        ai_response = response.choices[0].message.content.strip()
         
-        if not validation_result["valid"]:
-            logger.log_validation("project-setup", False, validation_result["errors"])
-            raise HTTPException(
-                status_code=500,
-                detail=f"Validation failed: {validation_result['errors']}"
-            )
-        
-        logger.log_validation("project-setup", True, [])
-        
-        # Step 5: Return structured JSON
-        duration = time.time() - start_time
-        response = {
-            "status": "success",
-            "data": validation_result["data"],
-            "metadata": {
-                "project": req.project,
-                "progress": req.progress,
-                "processed_at": time.strftime("%Y-%m-%d %H:%M:%S")
+        # Parse JSON response
+        try:
+            risk_data = json.loads(ai_response)
+            return risk_data
+        except json.JSONDecodeError:
+            # Fallback if JSON parsing fails
+            return {
+                "risk_score": 50,
+                "risk_summary": ai_response[:200] if ai_response else "Analysis unavailable",
+                "recommendations": ["Review AI response for detailed recommendations"]
             }
-        }
-        
-        logger.log_response("project-setup", response, duration)
-        
-        return response
-        
-    except HTTPException:
-        raise
+            
     except Exception as e:
-        logger.log_error("project-setup", e, req.dict())
-        raise HTTPException(status_code=500, detail=str(e))
-
-# Risk Analysis endpoint
-@app.post("/risk-analysis")
-async def risk_analysis(req: RiskAnalysisRequest):
-    """
-    Generate comprehensive project management documentation:
-    - Project Charter
-    - Work Breakdown Structure (WBS)
-    - Key Risks
-    
-    Based on: Project Description, Duration, Team Size
-    """
-    start_time = time.time()
-    
-    try:
-        # Verify API key
-        check_api_key()
-        
-        # Log request
-        request_data = req.dict()
-        logger.log_request("risk-analysis", request_data)
-        
-        # Generate risk analysis using AI
-        response_text = await ai_manager.generate_risk_analysis(
-            req.project_description,
-            req.duration,
-            req.team_size
-        )
-        
-        # Validate response
-        validation_result = validator.validate_risk_analysis(response_text)
-        
-        if not validation_result["valid"]:
-            logger.log_validation("risk-analysis", False, validation_result["errors"])
-            raise HTTPException(
-                status_code=500,
-                detail=f"Validation failed: {validation_result['errors']}"
-            )
-        
-        logger.log_validation("risk-analysis", True, [])
-        
-        # Return structured JSON
-        duration = time.time() - start_time
-        response = {
-            "status": "success",
-            "data": validation_result["data"],
-            "metadata": {
-                "project_description": req.project_description,
-                "duration": req.duration,
-                "team_size": req.team_size,
-                "processed_at": time.strftime("%Y-%m-%d %H:%M:%S")
-            }
+        print(f"Risk Analysis Error: {str(e)}")
+        return {
+            "risk_score": 50,
+            "risk_summary": "Risk analysis temporarily unavailable.",
+            "recommendations": ["Check project data quality", "Retry analysis later"]
         }
-        
-        logger.log_response("risk-analysis", response, duration)
-        
-        return response
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.log_error("risk-analysis", e, req.dict())
-        raise HTTPException(status_code=500, detail=str(e))
-
-# Reporting endpoint (Progress analysis + Risk rating)
-@app.post("/reporting")
-async def generate_report(req: ReportingRequest):
-    """
-    Analyze project progress data and generate risk report:
-    - Identify risks from progress data
-    - Rate overall risk score (0-100)
-    - Provide risk summary
-    - Generate actionable recommendations
-    """
-    start_time = time.time()
-    
-    try:
-        # Verify API key
-        check_api_key()
-        
-        # Log request
-        request_data = req.dict()
-        logger.log_request("reporting", request_data)
-        
-        # Generate report using AI
-        response_text = await ai_manager.generate_report(req.progress_data)
-        
-        # Validate response
-        validation_result = validator.validate_reporting(response_text)
-        
-        if not validation_result["valid"]:
-            logger.log_validation("reporting", False, validation_result["errors"])
-            raise HTTPException(
-                status_code=500,
-                detail=f"Validation failed: {validation_result['errors']}"
-            )
-        
-        logger.log_validation("reporting", True, [])
-        
-        # Return structured JSON
-        duration = time.time() - start_time
-        response = {
-            "status": "success",
-            "data": validation_result["data"],
-            "metadata": {
-                "processed_at": time.strftime("%Y-%m-%d %H:%M:%S"),
-                "analysis_duration": round(duration, 2)
-            }
-        }
-        
-        logger.log_response("reporting", response, duration)
-        
-        return response
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.log_error("reporting", e, req.dict())
-        raise HTTPException(status_code=500, detail=str(e))
-
-# PMO Report endpoint
-@app.post("/pmo-report")
-async def generate_pmo_report(req: PMOReportRequest):
-    """
-    Generate professional PMO status report:
-    - Executive summary with status
-    - Achievements & milestones
-    - Blockers & challenges
-    - Next actions (immediate, short-term, decisions, resources, escalations)
-    - Metrics & KPIs
-    - Risk updates
-    
-    Returns both plain text and JSON summary
-    """
-    start_time = time.time()
-    
-    try:
-        # Verify API key
-        check_api_key()
-        
-        # Log request
-        request_data = req.dict()
-        logger.log_request("pmo-report", request_data)
-        
-        # Generate PMO report using AI
-        response_text = await ai_manager.generate_pmo_report(req.project_data)
-        
-        # Validate and parse response (extracts plain text and JSON)
-        validation_result = validator.validate_pmo_report(response_text)
-        
-        if not validation_result["valid"]:
-            logger.log_validation("pmo-report", False, validation_result["errors"])
-            raise HTTPException(
-                status_code=500,
-                detail=f"Validation failed: {validation_result['errors']}"
-            )
-        
-        logger.log_validation("pmo-report", True, [])
-        
-        # Return both formats
-        duration = time.time() - start_time
-        response = {
-            "status": "success",
-            "data": validation_result["data"],
-            "metadata": {
-                "processed_at": time.strftime("%Y-%m-%d %H:%M:%S"),
-                "report_generation_duration": round(duration, 2)
-            }
-        }
-        
-        logger.log_response("pmo-report", response, duration)
-        
-        return response
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.log_error("pmo-report", e, req.dict())
-        raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
     import uvicorn

@@ -1,0 +1,13 @@
+# AI Engine Docker ignore
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+.env
+*.md
+.git
+.venv
+venv/
+*.egg-info
+

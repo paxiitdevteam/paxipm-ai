@@ -7,7 +7,85 @@ import User from '../models/User.js';
 
 const router = express.Router();
 
-// Register new user
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     RegisterRequest:
+ *       type: object
+ *       required:
+ *         - name
+ *         - email
+ *         - password
+ *       properties:
+ *         name:
+ *           type: string
+ *           example: John Doe
+ *         email:
+ *           type: string
+ *           format: email
+ *           example: john@example.com
+ *         password:
+ *           type: string
+ *           format: password
+ *           example: SecurePassword123!
+ *         role:
+ *           type: string
+ *           enum: [Admin, Project Manager, Viewer]
+ *           example: Project Manager
+ *     LoginRequest:
+ *       type: object
+ *       required:
+ *         - email
+ *         - password
+ *       properties:
+ *         email:
+ *           type: string
+ *           format: email
+ *           example: john@example.com
+ *         password:
+ *           type: string
+ *           format: password
+ *           example: SecurePassword123!
+ *     AuthResponse:
+ *       type: object
+ *       properties:
+ *         message:
+ *           type: string
+ *         token:
+ *           type: string
+ *         user:
+ *           $ref: '#/components/schemas/User'
+ */
+
+/**
+ * @swagger
+ * /api/auth/register:
+ *   post:
+ *     summary: Register a new user
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/RegisterRequest'
+ *     responses:
+ *       201:
+ *         description: User registered successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AuthResponse'
+ *       400:
+ *         description: Bad request (missing fields or user exists)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ */
 router.post('/register', async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
@@ -17,21 +95,26 @@ router.post('/register', async (req, res) => {
     }
 
     // Check if user exists
-    const existingUser = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-    if (existingUser.rows.length > 0) {
+    const [existingUsers] = await pool.execute('SELECT * FROM users WHERE email = ?', [email]);
+    if (existingUsers.length > 0) {
       return res.status(400).json({ error: 'User already exists' });
     }
 
     // Hash password
     const passwordHash = await bcrypt.hash(password, 10);
 
-    // Insert user
-    const result = await pool.query(
-      'INSERT INTO users (name, email, role, password_hash) VALUES ($1, $2, $3, $4) RETURNING *',
+    // Insert user - use query() for INSERT to get insertId
+    const insertResult = await pool.query(
+      'INSERT INTO users (name, email, role, password_hash) VALUES (?, ?, ?, ?)',
       [name, email, role || 'Viewer', passwordHash]
     );
 
-    const user = User.fromDb(result.rows[0]);
+    // Get insert ID (works for both mysql2 and SQLite)
+    const insertId = insertResult.insertId;
+
+    // Fetch the inserted user
+    const [newUsers] = await pool.execute('SELECT * FROM users WHERE id = ?', [insertId]);
+    const user = User.fromDb(newUsers[0]);
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
       process.env.JWT_SECRET,
@@ -45,11 +128,50 @@ router.post('/register', async (req, res) => {
     });
   } catch (error) {
     console.error('Registration error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    // Provide more specific error messages for debugging
+    if (error.message && (error.message.includes('connect') || error.message.includes('ECONNREFUSED'))) {
+      res.status(500).json({ error: 'Database connection failed. Please check your database configuration in .env file.' });
+    } else if (error.message && error.message.includes('JWT')) {
+      res.status(500).json({ error: 'JWT configuration error. Please set JWT_SECRET in .env file.' });
+    } else if (error.message && error.message.includes('auth')) {
+      res.status(500).json({ error: 'Database authentication error. Please check your MariaDB username and password in .env file.' });
+    } else {
+      res.status(500).json({ 
+        error: error.message || 'Internal server error',
+        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      });
+    }
   }
 });
 
-// Login
+/**
+ * @swagger
+ * /api/auth/login:
+ *   post:
+ *     summary: Login user
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/LoginRequest'
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AuthResponse'
+ *       401:
+ *         description: Invalid credentials
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ */
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -59,12 +181,12 @@ router.post('/login', async (req, res) => {
     }
 
     // Find user
-    const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-    if (result.rows.length === 0) {
+    const [users] = await pool.execute('SELECT * FROM users WHERE email = ?', [email]);
+    if (users.length === 0) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const user = User.fromDb(result.rows[0]);
+    const user = User.fromDb(users[0]);
 
     // Verify password
     const isValid = await bcrypt.compare(password, user.passwordHash);
@@ -86,9 +208,20 @@ router.post('/login', async (req, res) => {
     });
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    // Provide more specific error messages for debugging
+    if (error.message && (error.message.includes('connect') || error.message.includes('ECONNREFUSED'))) {
+      res.status(500).json({ error: 'Database connection failed. Please check your database configuration in .env file.' });
+    } else if (error.message && error.message.includes('JWT')) {
+      res.status(500).json({ error: 'JWT configuration error. Please set JWT_SECRET in .env file.' });
+    } else if (error.message && error.message.includes('auth')) {
+      res.status(500).json({ error: 'Database authentication error. Please check your MariaDB username and password in .env file.' });
+    } else {
+      res.status(500).json({ 
+        error: error.message || 'Internal server error',
+        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      });
+    }
   }
 });
 
 export default router;
-
