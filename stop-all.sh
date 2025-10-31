@@ -29,12 +29,19 @@ if [ -f logs/frontend.pid ]; then
     rm -f logs/frontend.pid
 fi
 
-# Also kill by ports (backup)
+# Also kill by ports (backup) - Git Bash compatible
 echo ""
 echo -e "${YELLOW}Killing processes on ports 3000, 5000, 8000...${NC}"
-lsof -ti:3000 | xargs kill -9 2>/dev/null
-lsof -ti:5000 | xargs kill -9 2>/dev/null
-lsof -ti:8000 | xargs kill -9 2>/dev/null
+if command -v lsof >/dev/null 2>&1; then
+    lsof -ti:3000 | xargs kill -9 2>/dev/null
+    lsof -ti:5000 | xargs kill -9 2>/dev/null
+    lsof -ti:8000 | xargs kill -9 2>/dev/null
+else
+    # Windows Git Bash: use netstat and kill
+    for port in 3000 5000 8000; do
+        netstat -ano | grep ":$port " | grep LISTENING | awk '{print $5}' | xargs kill -9 2>/dev/null || true
+    done
+fi
 
 echo ""
 echo -e "${GREEN}All servers stopped!${NC}"

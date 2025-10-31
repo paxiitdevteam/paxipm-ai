@@ -12,12 +12,23 @@ YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-# Kill any existing processes on these ports
+# Kill any existing processes on these ports (Git Bash compatible)
 echo -e "${YELLOW}Checking for existing processes...${NC}"
-lsof -ti:3000 | xargs kill -9 2>/dev/null
-lsof -ti:5000 | xargs kill -9 2>/dev/null
-lsof -ti:8000 | xargs kill -9 2>/dev/null
+# Try lsof first, if not available use netstat (Windows Git Bash)
+if command -v lsof >/dev/null 2>&1; then
+    lsof -ti:3000 | xargs kill -9 2>/dev/null
+    lsof -ti:5000 | xargs kill -9 2>/dev/null
+    lsof -ti:8000 | xargs kill -9 2>/dev/null
+else
+    # Windows Git Bash: use netstat and taskkill
+    for port in 3000 5000 8000; do
+        netstat -ano | grep ":$port " | grep LISTENING | awk '{print $5}' | xargs kill -9 2>/dev/null || true
+    done
+fi
 sleep 2
+
+# Create logs directory if it doesn't exist (must be before redirects)
+mkdir -p logs
 
 # Start Backend (Port 5000)
 echo -e "${GREEN}Starting Backend on port 5000...${NC}"
@@ -45,9 +56,6 @@ FRONTEND_PID=$!
 cd ..
 echo "Frontend PID: $FRONTEND_PID"
 sleep 5
-
-# Create logs directory if it doesn't exist
-mkdir -p logs
 
 # Save PIDs to file
 echo "$BACKEND_PID" > logs/backend.pid
