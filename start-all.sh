@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# PaxiPM AI - Start All Servers from Root
+# PaxiPM AI - Start All Servers from Root (Git Bash Compatible)
 # Fixed Ports: Frontend (3000), Backend (5000), AI Engine (8000)
 
 echo "🚀 Starting PaxiPM AI - All Servers"

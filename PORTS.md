@@ -18,19 +18,15 @@ All servers must run with these **FIXED** ports from the **ROOT** directory.
 
 ## ✅ Startup Scripts (Use These!)
 
-### Linux/Mac:
+### Git Bash / Linux / Mac:
 ```bash
 ./start-all.sh
 ```
 
-### Windows:
-```bash
-start-all.bat
-```
-
 ### Stop All Servers:
-- Linux/Mac: `./stop-all.sh`
-- Windows: `stop-all.bat`
+```bash
+./stop-all.sh
+```
 
 ---
 
