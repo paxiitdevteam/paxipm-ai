@@ -76,7 +76,7 @@ export default function Home() {
               <span className="font-semibold text-gray-900">Built specifically for IT infrastructure and software delivery projects.</span>
             </p>
             <p className="text-lg text-gray-700 mb-8 max-w-3xl mx-auto">
-              From hardware refresh to AI-powered software delivery, PaxiPM AI helps you plan, execute, and deliver faster.
+              From hardware refresh cycles (PCs, laptops, tablets, phones, iPads, and all enterprise devices) to AI-powered software delivery, PaxiPM AI helps you plan, execute, and deliver faster.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
@@ -118,7 +118,7 @@ export default function Home() {
               We Deliver Complex IT and Software Projects
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Manage IT infrastructure and software projects with precision. From hardware refresh to AI-powered software delivery.
+              Manage IT infrastructure and software projects with precision. From hardware refresh cycles (PCs, tablets, phones, iPads) to AI-powered software delivery.
             </p>
           </div>
 
@@ -274,7 +274,7 @@ export default function Home() {
                 <input
                   type="text"
                   className="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="e.g., Enterprise PC Refresh 2025"
+                  placeholder="e.g., Enterprise Hardware Refresh 2025 (PCs, tablets, phones, iPads)"
                   value={projectName}
                   onChange={(e) => setProjectName(e.target.value)}
                 />
