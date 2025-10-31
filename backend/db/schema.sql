@@ -49,7 +49,57 @@ CREATE TABLE IF NOT EXISTS reports (
     FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
 );
 
+-- Milestones table
+CREATE TABLE IF NOT EXISTS milestones (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    project_id INT,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    target_date DATE NOT NULL,
+    status VARCHAR(50) DEFAULT 'Pending',
+    completed_date DATE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+);
+
+-- Risks table
+CREATE TABLE IF NOT EXISTS risks (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    project_id INT,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    probability VARCHAR(50),
+    impact VARCHAR(50),
+    risk_score INT CHECK (risk_score >= 0 AND risk_score <= 100),
+    status VARCHAR(50) DEFAULT 'Open',
+    mitigation_plan TEXT,
+    owner VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+);
+
+-- Issues table
+CREATE TABLE IF NOT EXISTS issues (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    project_id INT,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    severity VARCHAR(50),
+    status VARCHAR(50) DEFAULT 'Open',
+    resolution TEXT,
+    owner VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+);
+
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_projects_user_id ON projects(user_id);
 CREATE INDEX IF NOT EXISTS idx_tasks_project_id ON tasks(project_id);
 CREATE INDEX IF NOT EXISTS idx_reports_project_id ON reports(project_id);
+CREATE INDEX IF NOT EXISTS idx_milestones_project_id ON milestones(project_id);
+CREATE INDEX IF NOT EXISTS idx_milestones_target_date ON milestones(target_date);
+CREATE INDEX IF NOT EXISTS idx_milestones_status ON milestones(status);
+CREATE INDEX IF NOT EXISTS idx_risks_project_id ON risks(project_id);
+CREATE INDEX IF NOT EXISTS idx_risks_status ON risks(status);
+CREATE INDEX IF NOT EXISTS idx_issues_project_id ON issues(project_id);
+CREATE INDEX IF NOT EXISTS idx_issues_status ON issues(status);

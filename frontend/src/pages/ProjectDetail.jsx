@@ -6,19 +6,34 @@ import TaskList from "../components/TaskList";
 import TaskForm from "../components/TaskForm";
 import BudgetCard from "../components/BudgetCard";
 import BudgetForm from "../components/BudgetForm";
+import GanttView from "../components/GanttView";
+import MilestoneList from "../components/MilestoneList";
+import MilestoneForm from "../components/MilestoneForm";
+import RiskRegister from "../components/RiskRegister";
+import RiskForm from "../components/RiskForm";
+import IssueRegister from "../components/IssueRegister";
+import IssueForm from "../components/IssueForm";
+import { useMilestones } from "../context/MilestoneContext";
 import config from "../config";
 
 export default function ProjectDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { getProjectById, updateProject, loading: projectLoading } = useProjects();
+  const { createMilestone, updateMilestone } = useMilestones();
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [showBudgetForm, setShowBudgetForm] = useState(false);
+  const [showMilestoneForm, setShowMilestoneForm] = useState(false);
+  const [showRiskForm, setShowRiskForm] = useState(false);
+  const [showIssueForm, setShowIssueForm] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
-  const [activeTab, setActiveTab] = useState("overview"); // overview, tasks, budget
+  const [editingMilestone, setEditingMilestone] = useState(null);
+  const [editingRisk, setEditingRisk] = useState(null);
+  const [editingIssue, setEditingIssue] = useState(null);
+  const [activeTab, setActiveTab] = useState("overview"); // overview, tasks, gantt, milestones, risks, issues, budget
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -76,6 +91,52 @@ export default function ProjectDetail() {
   const handleTaskFormClose = () => {
     setShowTaskForm(false);
     setEditingTask(null);
+  };
+
+  const handleMilestoneSuccess = () => {
+    setShowMilestoneForm(false);
+    setEditingMilestone(null);
+    fetchProject();
+  };
+
+  const handleMilestoneEdit = (milestone) => {
+    setEditingMilestone(milestone);
+    setShowMilestoneForm(true);
+  };
+
+  const handleMilestoneFormClose = () => {
+    setShowMilestoneForm(false);
+    setEditingMilestone(null);
+  };
+
+  const handleRiskSuccess = () => {
+    setShowRiskForm(false);
+    setEditingRisk(null);
+  };
+
+  const handleRiskEdit = (risk) => {
+    setEditingRisk(risk);
+    setShowRiskForm(true);
+  };
+
+  const handleRiskFormClose = () => {
+    setShowRiskForm(false);
+    setEditingRisk(null);
+  };
+
+  const handleIssueSuccess = () => {
+    setShowIssueForm(false);
+    setEditingIssue(null);
+  };
+
+  const handleIssueEdit = (issue) => {
+    setEditingIssue(issue);
+    setShowIssueForm(true);
+  };
+
+  const handleIssueFormClose = () => {
+    setShowIssueForm(false);
+    setEditingIssue(null);
   };
 
   if (loading || projectLoading) {
@@ -143,6 +204,46 @@ export default function ProjectDetail() {
                 }`}
               >
                 Tasks
+              </button>
+              <button
+                onClick={() => setActiveTab("gantt")}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === "gantt"
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
+              >
+                Gantt
+              </button>
+              <button
+                onClick={() => setActiveTab("milestones")}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === "milestones"
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
+              >
+                Milestones
+              </button>
+              <button
+                onClick={() => setActiveTab("risks")}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === "risks"
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
+              >
+                Risks
+              </button>
+              <button
+                onClick={() => setActiveTab("issues")}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === "issues"
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
+              >
+                Issues
               </button>
               <button
                 onClick={() => setActiveTab("budget")}
@@ -261,6 +362,114 @@ export default function ProjectDetail() {
               )}
 
               <TaskList projectId={id} onTaskSelect={handleTaskEdit} />
+            </div>
+          </div>
+        )}
+
+        {activeTab === "gantt" && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <GanttView
+                projectId={id}
+                projectStartDate={project.startDate}
+                projectEndDate={project.endDate}
+              />
+            </div>
+          </div>
+        )}
+
+        {activeTab === "milestones" && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold text-gray-900">Milestones</h2>
+                <button
+                  onClick={() => {
+                    setEditingMilestone(null);
+                    setShowMilestoneForm(true);
+                  }}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  + Add Milestone
+                </button>
+              </div>
+
+              {showMilestoneForm && (
+                <div className="mb-6">
+                  <MilestoneForm
+                    projectId={id}
+                    milestone={editingMilestone}
+                    onClose={handleMilestoneFormClose}
+                    onSuccess={handleMilestoneSuccess}
+                  />
+                </div>
+              )}
+
+              <MilestoneList projectId={id} onMilestoneSelect={handleMilestoneEdit} />
+            </div>
+          </div>
+        )}
+
+        {activeTab === "risks" && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold text-gray-900">Risk Register</h2>
+                <button
+                  onClick={() => {
+                    setEditingRisk(null);
+                    setShowRiskForm(true);
+                  }}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  + Add Risk
+                </button>
+              </div>
+
+              {showRiskForm && (
+                <div className="mb-6">
+                  <RiskForm
+                    projectId={id}
+                    risk={editingRisk}
+                    onClose={handleRiskFormClose}
+                    onSuccess={handleRiskSuccess}
+                  />
+                </div>
+              )}
+
+              <RiskRegister projectId={id} onRiskSelect={handleRiskEdit} />
+            </div>
+          </div>
+        )}
+
+        {activeTab === "issues" && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold text-gray-900">Issue Register</h2>
+                <button
+                  onClick={() => {
+                    setEditingIssue(null);
+                    setShowIssueForm(true);
+                  }}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  + Add Issue
+                </button>
+              </div>
+
+              {showIssueForm && (
+                <div className="mb-6">
+                  <IssueForm
+                    projectId={id}
+                    issue={editingIssue}
+                    onClose={handleIssueFormClose}
+                    onSuccess={handleIssueSuccess}
+                  />
+                </div>
+              )}
+
+              <IssueRegister projectId={id} onIssueSelect={handleIssueEdit} />
             </div>
           </div>
         )}

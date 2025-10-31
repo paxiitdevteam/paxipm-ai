@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ProjectProvider } from './context/ProjectContext';
 import { TaskProvider } from './context/TaskContext';
+import { MilestoneProvider } from './context/MilestoneContext';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -22,7 +23,8 @@ function App() {
   return (
     <ProjectProvider>
       <TaskProvider>
-        <Router>
+        <MilestoneProvider>
+          <Router>
           <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
@@ -68,7 +70,8 @@ function App() {
           } 
         />
       </Routes>
-        </Router>
+          </Router>
+        </MilestoneProvider>
       </TaskProvider>
     </ProjectProvider>
   );

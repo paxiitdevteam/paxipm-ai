@@ -10,6 +10,9 @@ import authRoutes from "./api/routes/auth.js";
 import projectRoutes from "./api/routes/projects.js";
 import reportRoutes from "./api/routes/reports.js";
 import taskRoutes from "./api/routes/tasks.js";
+import milestoneRoutes from "./api/routes/milestones.js";
+import riskRoutes from "./api/routes/risks.js";
+import issueRoutes from "./api/routes/issues.js";
 import aiRoutes from "./api/routes/ai.js";
 
 // Import Swagger
@@ -117,6 +120,9 @@ app.post("/api/ai/charter", async (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/tasks", taskRoutes);
+app.use("/api/milestones", milestoneRoutes);
+app.use("/api/risks", riskRoutes);
+app.use("/api/issues", issueRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/ai", aiRoutes);
 
