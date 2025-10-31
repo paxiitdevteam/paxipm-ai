@@ -16,6 +16,14 @@ import IssueForm from "../components/IssueForm";
 import FileUpload from "../components/FileUpload";
 import ResourceList from "../components/ResourceList";
 import ResourceForm from "../components/ResourceForm";
+import AssetList from "../components/AssetList";
+import AssetForm from "../components/AssetForm";
+import SLAList from "../components/SLAList";
+import SLAForm from "../components/SLAForm";
+import ITILIncidentList from "../components/ITILIncidentList";
+import ITILIncidentForm from "../components/ITILIncidentForm";
+import ChangeList from "../components/ChangeList";
+import ChangeForm from "../components/ChangeForm";
 import { useMilestones } from "../context/MilestoneContext";
 import config from "../config";
 
@@ -33,12 +41,20 @@ export default function ProjectDetail() {
   const [showRiskForm, setShowRiskForm] = useState(false);
   const [showIssueForm, setShowIssueForm] = useState(false);
   const [showResourceForm, setShowResourceForm] = useState(false);
+  const [showAssetForm, setShowAssetForm] = useState(false);
+  const [showSLAForm, setShowSLAForm] = useState(false);
+  const [showITILIncidentForm, setShowITILIncidentForm] = useState(false);
+  const [showChangeForm, setShowChangeForm] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [editingMilestone, setEditingMilestone] = useState(null);
   const [editingRisk, setEditingRisk] = useState(null);
   const [editingIssue, setEditingIssue] = useState(null);
   const [editingResource, setEditingResource] = useState(null);
-  const [activeTab, setActiveTab] = useState("overview"); // overview, tasks, gantt, milestones, risks, issues, files, resources, budget
+  const [editingAsset, setEditingAsset] = useState(null);
+  const [editingSLA, setEditingSLA] = useState(null);
+  const [editingITILIncident, setEditingITILIncident] = useState(null);
+  const [editingChange, setEditingChange] = useState(null);
+  const [activeTab, setActiveTab] = useState("overview"); // overview, tasks, gantt, milestones, risks, issues, files, resources, itam, sla, incidents, changes, budget
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -157,6 +173,66 @@ export default function ProjectDetail() {
   const handleResourceFormClose = () => {
     setShowResourceForm(false);
     setEditingResource(null);
+  };
+
+  const handleAssetSuccess = () => {
+    setShowAssetForm(false);
+    setEditingAsset(null);
+  };
+
+  const handleAssetEdit = (asset) => {
+    setEditingAsset(asset);
+    setShowAssetForm(true);
+  };
+
+  const handleAssetFormClose = () => {
+    setShowAssetForm(false);
+    setEditingAsset(null);
+  };
+
+  const handleSLASuccess = () => {
+    setShowSLAForm(false);
+    setEditingSLA(null);
+  };
+
+  const handleSLAEdit = (sla) => {
+    setEditingSLA(sla);
+    setShowSLAForm(true);
+  };
+
+  const handleSLAFormClose = () => {
+    setShowSLAForm(false);
+    setEditingSLA(null);
+  };
+
+  const handleITILIncidentSuccess = () => {
+    setShowITILIncidentForm(false);
+    setEditingITILIncident(null);
+  };
+
+  const handleITILIncidentEdit = (incident) => {
+    setEditingITILIncident(incident);
+    setShowITILIncidentForm(true);
+  };
+
+  const handleITILIncidentFormClose = () => {
+    setShowITILIncidentForm(false);
+    setEditingITILIncident(null);
+  };
+
+  const handleChangeSuccess = () => {
+    setShowChangeForm(false);
+    setEditingChange(null);
+  };
+
+  const handleChangeEdit = (change) => {
+    setEditingChange(change);
+    setShowChangeForm(true);
+  };
+
+  const handleChangeFormClose = () => {
+    setShowChangeForm(false);
+    setEditingChange(null);
   };
 
   if (loading || projectLoading) {
@@ -284,6 +360,46 @@ export default function ProjectDetail() {
                 }`}
               >
                 Resources
+              </button>
+              <button
+                onClick={() => setActiveTab("itam")}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === "itam"
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
+              >
+                ITAM
+              </button>
+              <button
+                onClick={() => setActiveTab("sla")}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === "sla"
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
+              >
+                SLA
+              </button>
+              <button
+                onClick={() => setActiveTab("itil-incidents")}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === "itil-incidents"
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
+              >
+                Incidents
+              </button>
+              <button
+                onClick={() => setActiveTab("changes")}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === "changes"
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
+              >
+                Changes
               </button>
               <button
                 onClick={() => setActiveTab("budget")}
