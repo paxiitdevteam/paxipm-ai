@@ -125,33 +125,38 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
             {[
               {
-                title: "Hardware Refresh & Device Lifecycle",
-                desc: "Complete hardware replacement projects: PCs, laptops, tablets, phones, iPads, and all enterprise devices. End-to-end rollout, configuration, and asset management for large-scale refresh initiatives.",
+                title: "Device Lifecycle & PC Refresh",
+                desc: "End-to-end hardware rollout, configuration, and asset management for enterprise-scale refresh programs.",
                 icon: "💻"
               },
               {
                 title: "Network & Cloud Transformation",
-                desc: "LAN/WAN upgrades, Wi-Fi redesigns, and hybrid cloud migration with Azure and AWS.",
+                desc: "LAN/WAN upgrades, Wi-Fi redesigns, and hybrid cloud migration with Azure and AWS integration.",
                 icon: "☁️"
               },
               {
                 title: "Software & SaaS Delivery",
-                desc: "Full-stack software projects managed with Agile, Scrum, and AI automation.",
+                desc: "Full-stack software development and delivery managed through Agile, Scrum, and AI-driven automation.",
                 icon: "🚀"
               },
               {
                 title: "Cybersecurity & Compliance",
-                desc: "Zero Trust, MFA, GDPR, and ISO 27001-aligned project delivery.",
+                desc: "Zero Trust, MFA, GDPR, and ISO 27001-aligned project delivery with AI-powered risk management.",
                 icon: "🔒"
               },
               {
+                title: "ITIL & Service Management",
+                desc: "Aligned with ITIL 4 for ITAM, ISAM, SLA tracking, and AI-assisted incident and change management workflows.",
+                icon: "📋"
+              },
+              {
                 title: "Event & Venue IT Systems",
-                desc: "Digital infrastructure deployment for stadiums and large venues, including CRM and POS systems.",
+                desc: "Digital infrastructure deployment for stadiums and venues, covering CRM, ticketing, and POS integrations.",
                 icon: "🏟️"
               },
               {
                 title: "DevOps & Automation",
-                desc: "CI/CD, Docker, and infrastructure automation using modern DevOps practices.",
+                desc: "Continuous integration, Dockerized environments, and infrastructure automation through AI-enabled DevOps pipelines.",
                 icon: "⚙️"
               },
             ].map((item, idx) => (
