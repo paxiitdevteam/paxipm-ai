@@ -14,6 +14,8 @@ import RiskForm from "../components/RiskForm";
 import IssueRegister from "../components/IssueRegister";
 import IssueForm from "../components/IssueForm";
 import FileUpload from "../components/FileUpload";
+import ResourceList from "../components/ResourceList";
+import ResourceForm from "../components/ResourceForm";
 import { useMilestones } from "../context/MilestoneContext";
 import config from "../config";
 
@@ -30,11 +32,13 @@ export default function ProjectDetail() {
   const [showMilestoneForm, setShowMilestoneForm] = useState(false);
   const [showRiskForm, setShowRiskForm] = useState(false);
   const [showIssueForm, setShowIssueForm] = useState(false);
+  const [showResourceForm, setShowResourceForm] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [editingMilestone, setEditingMilestone] = useState(null);
   const [editingRisk, setEditingRisk] = useState(null);
   const [editingIssue, setEditingIssue] = useState(null);
-  const [activeTab, setActiveTab] = useState("overview"); // overview, tasks, gantt, milestones, risks, issues, budget
+  const [editingResource, setEditingResource] = useState(null);
+  const [activeTab, setActiveTab] = useState("overview"); // overview, tasks, gantt, milestones, risks, issues, files, resources, budget
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -138,6 +142,21 @@ export default function ProjectDetail() {
   const handleIssueFormClose = () => {
     setShowIssueForm(false);
     setEditingIssue(null);
+  };
+
+  const handleResourceSuccess = () => {
+    setShowResourceForm(false);
+    setEditingResource(null);
+  };
+
+  const handleResourceEdit = (resource) => {
+    setEditingResource(resource);
+    setShowResourceForm(true);
+  };
+
+  const handleResourceFormClose = () => {
+    setShowResourceForm(false);
+    setEditingResource(null);
   };
 
   if (loading || projectLoading) {
@@ -255,6 +274,16 @@ export default function ProjectDetail() {
                 }`}
               >
                 Files
+              </button>
+              <button
+                onClick={() => setActiveTab("resources")}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === "resources"
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
+              >
+                Resources
               </button>
               <button
                 onClick={() => setActiveTab("budget")}
@@ -489,6 +518,38 @@ export default function ProjectDetail() {
           <div className="space-y-6">
             <div className="bg-white rounded-lg shadow-sm p-6">
               <FileUpload projectId={id} />
+            </div>
+          </div>
+        )}
+
+        {activeTab === "resources" && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold text-gray-900">Resources</h2>
+                <button
+                  onClick={() => {
+                    setEditingResource(null);
+                    setShowResourceForm(true);
+                  }}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  + Add Resource
+                </button>
+              </div>
+
+              {showResourceForm && (
+                <div className="mb-6">
+                  <ResourceForm
+                    projectId={id}
+                    resource={editingResource}
+                    onClose={handleResourceFormClose}
+                    onSuccess={handleResourceSuccess}
+                  />
+                </div>
+              )}
+
+              <ResourceList projectId={id} onResourceSelect={handleResourceEdit} />
             </div>
           </div>
         )}

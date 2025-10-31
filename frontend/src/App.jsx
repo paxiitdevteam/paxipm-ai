@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { ProjectProvider } from './context/ProjectContext';
 import { TaskProvider } from './context/TaskContext';
 import { MilestoneProvider } from './context/MilestoneContext';
+import { NotificationProvider } from './context/NotificationContext';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -24,7 +25,8 @@ function App() {
     <ProjectProvider>
       <TaskProvider>
         <MilestoneProvider>
-          <Router>
+          <NotificationProvider>
+            <Router>
           <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
@@ -70,7 +72,8 @@ function App() {
           } 
         />
       </Routes>
-          </Router>
+            </Router>
+          </NotificationProvider>
         </MilestoneProvider>
       </TaskProvider>
     </ProjectProvider>

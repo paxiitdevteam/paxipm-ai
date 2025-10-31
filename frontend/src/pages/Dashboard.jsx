@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import NotificationBell from "../components/NotificationBell";
 import config from "../config";
 
 export default function Dashboard() {
@@ -185,6 +186,7 @@ export default function Dashboard() {
                 {user.name} ({user.role})
               </span>
             )}
+            <NotificationBell />
             <button
               onClick={handleLogout}
               className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition"

@@ -14,6 +14,8 @@ import milestoneRoutes from "./api/routes/milestones.js";
 import riskRoutes from "./api/routes/risks.js";
 import issueRoutes from "./api/routes/issues.js";
 import fileRoutes from "./api/routes/files.js";
+import notificationRoutes from "./api/routes/notifications.js";
+import resourceRoutes from "./api/routes/resources.js";
 import aiRoutes from "./api/routes/ai.js";
 
 // Import Swagger
@@ -125,6 +127,8 @@ app.use("/api/milestones", milestoneRoutes);
 app.use("/api/risks", riskRoutes);
 app.use("/api/issues", issueRoutes);
 app.use("/api/files", fileRoutes);
+app.use("/api/notifications", notificationRoutes);
+app.use("/api/resources", resourceRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/ai", aiRoutes);
 
