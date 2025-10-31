@@ -1,13 +1,24 @@
+// Project Detail Page with Tasks and Budget
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useProjects } from "../context/ProjectContext";
+import TaskList from "../components/TaskList";
+import TaskForm from "../components/TaskForm";
+import BudgetCard from "../components/BudgetCard";
+import BudgetForm from "../components/BudgetForm";
 import config from "../config";
 
 export default function ProjectDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { getProjectById, updateProject, loading: projectLoading } = useProjects();
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [showTaskForm, setShowTaskForm] = useState(false);
+  const [showBudgetForm, setShowBudgetForm] = useState(false);
+  const [editingTask, setEditingTask] = useState(null);
+  const [activeTab, setActiveTab] = useState("overview"); // overview, tasks, budget
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -15,13 +26,14 @@ export default function ProjectDetail() {
       navigate("/login");
       return;
     }
-    fetchProject(id, token);
+    fetchProject();
   }, [id, navigate]);
 
-  const fetchProject = async (projectId, token) => {
+  const fetchProject = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${config.API_BASE_URL}/api/projects/${projectId}`, {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${config.API_BASE_URL}/api/projects/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -40,10 +52,39 @@ export default function ProjectDetail() {
     }
   };
 
-  if (loading) {
+  const handleBudgetSave = async (budgetData) => {
+    try {
+      await updateProject(id, budgetData);
+      await fetchProject(); // Refresh project data
+      setShowBudgetForm(false);
+    } catch (err) {
+      throw new Error(err.message || "Failed to update budget");
+    }
+  };
+
+  const handleTaskSuccess = () => {
+    setShowTaskForm(false);
+    setEditingTask(null);
+    fetchProject(); // Refresh to show updated task count
+  };
+
+  const handleTaskEdit = (task) => {
+    setEditingTask(task);
+    setShowTaskForm(true);
+  };
+
+  const handleTaskFormClose = () => {
+    setShowTaskForm(false);
+    setEditingTask(null);
+  };
+
+  if (loading || projectLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-600">Loading project...</p>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading project...</p>
+        </div>
       </div>
     );
   }
@@ -55,7 +96,7 @@ export default function ProjectDetail() {
           <p className="text-red-600 mb-4">{error || "Project not found"}</p>
           <button
             onClick={() => navigate("/projects")}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
             Back to Projects
           </button>
@@ -65,105 +106,195 @@ export default function ProjectDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 py-4">
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="mb-6">
           <button
             onClick={() => navigate("/projects")}
-            className="text-blue-600 hover:underline mb-4"
+            className="text-blue-600 hover:text-blue-800 mb-4 flex items-center"
           >
             ← Back to Projects
           </button>
-          <h1 className="text-2xl font-bold text-gray-800">{project.title}</h1>
+          <h1 className="text-3xl font-bold text-gray-900">{project.title}</h1>
+          <p className="text-gray-600 mt-2">{project.description || "No description"}</p>
         </div>
-      </header>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h3 className="text-sm font-medium text-gray-500 mb-2">Description</h3>
-              <p className="text-gray-800">{project.description || "No description provided"}</p>
-            </div>
-
-            <div>
-              <h3 className="text-sm font-medium text-gray-500 mb-2">Client</h3>
-              <p className="text-gray-800">{project.client || "N/A"}</p>
-            </div>
-
-            <div>
-              <h3 className="text-sm font-medium text-gray-500 mb-2">Status</h3>
-              <span
-                className={`px-3 py-1 rounded text-sm inline-block ${
-                  project.status === "Active"
-                    ? "bg-green-100 text-green-800"
-                    : project.status === "Completed"
-                    ? "bg-gray-100 text-gray-800"
-                    : "bg-yellow-100 text-yellow-800"
+        {/* Tabs */}
+        <div className="bg-white rounded-lg shadow-sm mb-6">
+          <div className="border-b border-gray-200">
+            <nav className="flex space-x-8 px-6" aria-label="Tabs">
+              <button
+                onClick={() => setActiveTab("overview")}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === "overview"
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 }`}
               >
-                {project.status}
-              </span>
+                Overview
+              </button>
+              <button
+                onClick={() => setActiveTab("tasks")}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === "tasks"
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
+              >
+                Tasks
+              </button>
+              <button
+                onClick={() => setActiveTab("budget")}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === "budget"
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
+              >
+                Budget
+              </button>
+            </nav>
+          </div>
+        </div>
+
+        {/* Tab Content */}
+        {activeTab === "overview" && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Project Info */}
+            <div className="lg:col-span-2 space-y-6">
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">Project Details</h2>
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Client</label>
+                    <p className="text-gray-900">{project.client || "Not specified"}</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Start Date</label>
+                      <p className="text-gray-900">
+                        {project.startDate ? new Date(project.startDate).toLocaleDateString() : "Not set"}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">End Date</label>
+                      <p className="text-gray-900">
+                        {project.endDate ? new Date(project.endDate).toLocaleDateString() : "Not set"}
+                      </p>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Status</label>
+                    <span
+                      className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
+                        project.status === "Active"
+                          ? "bg-green-100 text-green-700"
+                          : project.status === "Completed"
+                          ? "bg-blue-100 text-blue-700"
+                          : "bg-gray-100 text-gray-700"
+                      }`}
+                    >
+                      {project.status}
+                    </span>
+                  </div>
+                  {project.riskScore !== null && (
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Risk Score</label>
+                      <div className="flex items-center space-x-2 mt-1">
+                        <div className="flex-1 bg-gray-200 rounded-full h-2">
+                          <div
+                            className={`h-2 rounded-full ${
+                              project.riskScore >= 70
+                                ? "bg-red-500"
+                                : project.riskScore >= 40
+                                ? "bg-yellow-500"
+                                : "bg-green-500"
+                            }`}
+                            style={{ width: `${project.riskScore}%` }}
+                          />
+                        </div>
+                        <span className="text-sm font-semibold text-gray-900">{project.riskScore}/100</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
 
-            {project.riskScore !== null && project.riskScore !== undefined && (
-              <div>
-                <h3 className="text-sm font-medium text-gray-500 mb-2">Risk Score</h3>
-                <span
-                  className={`px-3 py-1 rounded text-sm inline-block ${
-                    project.riskScore >= 70
-                      ? "bg-red-100 text-red-800"
-                      : project.riskScore >= 40
-                      ? "bg-yellow-100 text-yellow-800"
-                      : "bg-green-100 text-green-800"
-                  }`}
+            {/* Budget Card */}
+            <div>
+              <BudgetCard
+                budgetedAmount={project.budgetedAmount || 0}
+                spentAmount={project.spentAmount || 0}
+                currencyCode={project.currencyCode || "USD"}
+              />
+            </div>
+          </div>
+        )}
+
+        {activeTab === "tasks" && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold text-gray-900">Tasks</h2>
+                <button
+                  onClick={() => {
+                    setEditingTask(null);
+                    setShowTaskForm(true);
+                  }}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                 >
-                  {project.riskScore}/100
-                </span>
+                  + Add Task
+                </button>
               </div>
-            )}
 
-            {project.startDate && (
-              <div>
-                <h3 className="text-sm font-medium text-gray-500 mb-2">Start Date</h3>
-                <p className="text-gray-800">{new Date(project.startDate).toLocaleDateString()}</p>
-              </div>
-            )}
+              {showTaskForm && (
+                <div className="mb-6">
+                  <TaskForm
+                    projectId={id}
+                    task={editingTask}
+                    onClose={handleTaskFormClose}
+                    onSuccess={handleTaskSuccess}
+                  />
+                </div>
+              )}
 
-            {project.endDate && (
-              <div>
-                <h3 className="text-sm font-medium text-gray-500 mb-2">End Date</h3>
-                <p className="text-gray-800">{new Date(project.endDate).toLocaleDateString()}</p>
+              <TaskList projectId={id} onTaskSelect={handleTaskEdit} />
+            </div>
+          </div>
+        )}
+
+        {activeTab === "budget" && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <BudgetCard
+              budgetedAmount={project.budgetedAmount || 0}
+              spentAmount={project.spentAmount || 0}
+              currencyCode={project.currencyCode || "USD"}
+            />
+            {showBudgetForm ? (
+              <BudgetForm
+                project={project}
+                onSave={handleBudgetSave}
+                onClose={() => setShowBudgetForm(false)}
+              />
+            ) : (
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">Budget Management</h2>
+                <p className="text-gray-600 mb-4">
+                  Update your project budget and track spending against the allocated amount.
+                </p>
+                <button
+                  onClick={() => setShowBudgetForm(true)}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  Update Budget
+                </button>
               </div>
             )}
           </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4">Actions</h2>
-          <div className="flex gap-4">
-            <button
-              onClick={() => navigate("/ai-tools")}
-              className="bg-purple-600 text-white px-6 py-2 rounded hover:bg-purple-700 transition"
-            >
-              Generate AI Charter
-            </button>
-            <button
-              onClick={() => navigate("/ai-tools")}
-              className="bg-orange-600 text-white px-6 py-2 rounded hover:bg-orange-700 transition"
-            >
-              Calculate Risk Score
-            </button>
-            <button
-              onClick={() => navigate("/reports")}
-              className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition"
-            >
-              View Reports
-            </button>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
 }
-
