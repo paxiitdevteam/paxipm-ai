@@ -1,34 +1,33 @@
-# Dependencies
+# Secrets - never commit these
+.env
+.env.*
+*.env
+config.json
+secrets.json
+api_keys.json
+.env.local
+.env.production
+.env.development
+
+# Node
 node_modules/
-venv/
+npm-debug.log*
+
+# Python
 __pycache__/
 *.pyc
 *.pyo
-*.pyd
-.Python
-
-# Environment variables
-.env
-.env.local
-.env.*.local
-
-# Build outputs
-build/
+venv/
+.venv/
 dist/
-*.log
+build/
 
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
+# Output and temp
+output/
+jd_*_temp.txt
+~$*.docx
 
 # OS
 .DS_Store
 Thumbs.db
-
-# Database
-*.db
-*.sqlite
-
+desktop.ini
